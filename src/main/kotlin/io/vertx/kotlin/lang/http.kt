@@ -89,6 +89,13 @@ public fun HttpServerResponse.setStatus(code : Int, message : String) {
     setStatusMessage(message)
 }
 
+public inline var HttpServerResponse.contentLength : Long
+    get() = headers().getAll("Content-Length").distinct().single().toLong()
+    set(newValue) {
+        setChunked(false)
+        header("Content-Length", newValue)
+    }
+
 public inline fun HttpServerResponse.body(block : HttpServerResponse.() -> Unit) {
     setChunked(true)
     block()
