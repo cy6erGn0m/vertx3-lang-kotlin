@@ -16,31 +16,32 @@ import kotlinx.util.with
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
+import kotlin.InlineOption.ONLY_LOCAL_RETURN
 
 public fun HttpServerOptions(port: Int, host: String = NetServerOptions.DEFAULT_HOST): HttpServerOptions = HttpServerOptions().setHost(host).setPort(port)
 
-public fun Vertx.createHttpServerWithOptions(options: HttpServerOptions, handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.createHttpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServer(options).with { requestHandler { request -> request.response().handler(request) } }
 
-public fun Verticle.createHttpServerWithOptions(options: HttpServerOptions, handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.createHttpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         getVertx().createHttpServerWithOptions(options, handler)
 
-public fun Vertx.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(HttpServerOptions(port, host), handler)
 
-public fun Verticle.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(HttpServerOptions(port, host), handler)
 
-public fun Vertx.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServer(port, host, block).listen()
 
-public fun Verticle.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServer(port, host, block).listen()
 
-public fun Vertx.httpServerWithOptions(options: HttpServerOptions, block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.httpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(options, block).listen()
 
-public fun Verticle.httpServerWithOptions(options: HttpServerOptions, block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.httpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(options, block).listen()
 
 public fun HttpServer.listen(listenHandler: (AsyncResult<HttpServer>) -> Unit): HttpServer = this.listen(object : Handler<core.AsyncResult<HttpServer>> {
@@ -53,11 +54,11 @@ public fun HttpServerResponse.replyBuffer(block: () -> Buffer) {
     write(block()).end()
 }
 
-public fun HttpServerResponse.replyBuffer(block: Buffer.() -> Unit): Unit {
+public inline fun HttpServerResponse.replyBuffer(block: Buffer.() -> Unit): Unit {
     write(Buffer(8192, block)).end()
 }
 
-public fun HttpServerResponse.replyJson(block: Json.() -> Any): Unit {
+public inline fun HttpServerResponse.replyJson(block: Json.() -> Any): Unit {
     Buffer { appendJson(block) }.let { buffer -> this.write(buffer) }
 }
 
@@ -83,12 +84,18 @@ public fun HttpServerResponse.contentType(mimeType : String, encoding : String =
     header("Content-Type", "$mimeType;charset=$encoding")
 }
 
-public fun HttpServerResponse.body(block : HttpServerResponse.() -> Unit) {
+public fun HttpServerResponse.setStatus(code : Int, message : String) {
+    setStatusCode(code)
+    setStatusMessage(message)
+}
+
+public inline fun HttpServerResponse.body(block : HttpServerResponse.() -> Unit) {
+    setChunked(true)
     block()
     end()
 }
 
-public fun HttpServerResponse.bodyJson(block : Json.() -> Any) {
+public inline fun HttpServerResponse.bodyJson(block : Json.() -> Any) {
     setChunked(true)
     contentType("application/json")
     body {
