@@ -20,18 +20,3 @@ public inline fun <T> json_(block : Json.() -> T) : T = Json().block()
 
 [suppress("UNCHECKED_CAST")]
 public fun <T> JsonObject.get(key : String) : T = getValue(key) as T
-
-fun main(args: Array<String>) {
-    val j = json_ {
-        object_ (
-                "a" to 1,
-                "b" to object_ (
-                        "field1" to "value1"
-                ),
-                "c" to array_("1", "2", "3")
-        )
-    }
-
-    println(j)
-    println(j["a"] : Any)
-}

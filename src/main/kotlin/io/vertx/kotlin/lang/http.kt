@@ -41,7 +41,7 @@ public fun HttpServerResponse.replyBuffer(block: () -> Buffer) {
     write(block()).end()
 }
 
-public fun HttpServerResponse.Buffer(block: Buffer.() -> Unit) : Unit { write(Buffer(8192, block)).end() }
-public fun HttpServerResponse.Json(block: Json.() -> Any) : Unit {
-    Json().block().let { result -> impl.Json.encode(result) }.let { encoded -> Buffer.buffer(encoded) }.let { buffer -> this.write(buffer)}
+public fun HttpServerResponse.replyBuffer(block: Buffer.() -> Unit) : Unit { write(Buffer(8192, block)).end() }
+public fun HttpServerResponse.replyJson(block: Json.() -> Any) : Unit {
+    Buffer { appendJson(block) }.let { buffer -> this.write(buffer)}
 }

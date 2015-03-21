@@ -25,22 +25,3 @@ public fun NetServer.listen(handler : (AsyncResult<NetServer>) -> Unit) : NetSer
         handler(event?.toAsyncResultK() ?: AsyncErrorResult<NetServer>(NullPointerException("async result is null")))
     }
 })
-
-class X : AbstractVerticle() {
-    override fun start() {
-        super.start()
-
-        netServer(9094) { client ->
-            client.handler { bytes ->
-                client.write(bytes)
-                client.writeBuffer {
-                    appendString("yo")
-                }
-            }
-            client.startPumpTo(client)
-            client.closeHandler {
-
-            }
-        }
-    }
-}
