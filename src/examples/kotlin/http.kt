@@ -10,6 +10,7 @@ import io.vertx.kotlin.lang.json.object_
 class SimpleRest : AbstractVerticle() {
     override fun start() {
         httpServer(9091) { request ->
+            setChunked(true)
             replyJson {
                 object_(
                         "a" to 1,
@@ -17,6 +18,7 @@ class SimpleRest : AbstractVerticle() {
                         "params" to array_(request.params())
                 )
             }
+            end()
         }
     }
 }
