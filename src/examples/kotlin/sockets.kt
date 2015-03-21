@@ -42,7 +42,7 @@ class NetSocketBytes : AbstractVerticle() {
     }
 }
 
-class SameAnswerSockets : AbstractVerticle() {
+class ConstantAnswerSockets : AbstractVerticle() {
     override fun start() {
         netServer(8080) { client ->
             client.use {

@@ -3,7 +3,7 @@
 Simple REST service:
 
 ```kotlin
-class KVerticle : AbstractVerticle() {
+class SimpleREST : AbstractVerticle() {
     override fun start() {
         httpServer(9091) {
             Json {
@@ -20,7 +20,7 @@ class KVerticle : AbstractVerticle() {
 
 Simple echo socket server
 ```kotlin
-class X : AbstractVerticle() {
+class EchoSocket : AbstractVerticle() {
     override fun start() {
         netServer(9094) { client ->
             client.startPumpTo(client)
@@ -28,3 +28,5 @@ class X : AbstractVerticle() {
     }
 }
 ```
+
+See https://github.com/cy6erGn0m/vertx3-lang-kotlin/tree/master/src/examples/kotlin for more examples
