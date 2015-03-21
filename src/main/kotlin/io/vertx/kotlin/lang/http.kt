@@ -13,6 +13,9 @@ import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.net.NetServerOptions
 import io.vertx.kotlin.lang.json.Json
 import kotlinx.util.with
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
 public fun HttpServerOptions(port: Int, host: String = NetServerOptions.DEFAULT_HOST): HttpServerOptions = HttpServerOptions().setHost(host).setPort(port)
 
@@ -56,4 +59,39 @@ public fun HttpServerResponse.replyBuffer(block: Buffer.() -> Unit): Unit {
 
 public fun HttpServerResponse.replyJson(block: Json.() -> Any): Unit {
     Buffer { appendJson(block) }.let { buffer -> this.write(buffer) }
+}
+
+public fun HttpServerResponse.header(headerName : String, headerValue : String) : Unit {
+    putHeader(headerName, headerValue)
+}
+
+public fun HttpServerResponse.header(headerName : String, headerValue : Number) : Unit {
+    putHeader(headerName, headerValue.toString())
+}
+
+private val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
+    override fun initialValue(): SimpleDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z").with {
+        setTimeZone(TimeZone.getTimeZone("GMT"))
+    }
+}
+
+public fun HttpServerResponse.header(headerName : String, headerValue : Date) : Unit {
+    putHeader(headerName, dateFormatLocal.get().format(headerValue))
+}
+
+public fun HttpServerResponse.contentType(mimeType : String, encoding : String = "utf-8") : Unit {
+    header("Content-Type", "$mimeType;charset=$encoding")
+}
+
+public fun HttpServerResponse.body(block : HttpServerResponse.() -> Unit) {
+    block()
+    end()
+}
+
+public fun HttpServerResponse.bodyJson(block : Json.() -> Any) {
+    setChunked(true)
+    contentType("application/json")
+    body {
+        replyJson(block)
+    }
 }
