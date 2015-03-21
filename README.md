@@ -10,7 +10,7 @@ class KVerticle : AbstractVerticle() {
                 object_(
                         "a" to 1,
                         "b" to array_("x", "y", "z"),
-                        "params" to object_(it.params().map { it.getKey() to it.getValue() })
+                        "params" to array_(it.params())
                 )
             }
         }
