@@ -1,0 +1,33 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:0.11.+'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+
+repositories {
+  mavenCentral()
+}
+
+repositories {
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
+sourceSets {
+    examples
+}
+
+dependencies {
+  compile 'org.jetbrains.kotlin:kotlin-stdlib:0.11.+'
+  testCompile 'junit:junit:4.+'
+
+  compile 'io.vertx:vertx-core:3.0.0-SNAPSHOT'
+}
+
+
