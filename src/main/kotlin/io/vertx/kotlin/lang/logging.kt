@@ -4,7 +4,7 @@ import io.vertx.core.logging.Logger
 
 public inline fun Logger.info(messageProvider: () -> String) {
     if (isInfoEnabled()) {
-            info(messageProvider())
+        info(messageProvider())
     }
 }
 
