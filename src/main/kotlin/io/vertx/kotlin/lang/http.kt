@@ -15,6 +15,7 @@ import io.vertx.kotlin.lang.json.Json
 import kotlinx.util.with
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.TimeZone
 import kotlin.InlineOption.ONLY_LOCAL_RETURN
 
@@ -71,7 +72,7 @@ public fun HttpServerResponse.header(headerName : String, headerValue : Number) 
 }
 
 private val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
-    override fun initialValue(): SimpleDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z").with {
+    override fun initialValue(): SimpleDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).with {
         setTimeZone(TimeZone.getTimeZone("GMT"))
     }
 }

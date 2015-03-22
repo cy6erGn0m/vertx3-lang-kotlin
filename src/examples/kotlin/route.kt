@@ -2,6 +2,7 @@ package examples.route
 
 import io.vertx.kotlin.lang.*
 import kotlinx.util.with
+import java.io.File
 
 fun main(args: Array<String>) {
     DefaultVertx {
@@ -27,6 +28,7 @@ fun main(args: Array<String>) {
                     """)
                 }
             }
+            serve("/files", File("src/main/kotlin/io/vertx/kotlin/lang"))
 
             otherwise {
                 setStatus(404, "Resource not found")

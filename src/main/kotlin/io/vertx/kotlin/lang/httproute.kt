@@ -3,6 +3,7 @@ package io.vertx.kotlin.lang
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.InlineOption.ONLY_LOCAL_RETURN
@@ -82,3 +83,9 @@ public fun String.globToPattern() : Pattern = globPattern.matcher(this).let { m 
 public inline fun Route.glob(vararg globs : String) : List<Pattern> =
     globs.map { glob -> patternCache.getOrPut(glob) {glob.globToPattern()} }
 
+[suppress("NOTHING_TO_INLINE")]
+public fun Route.serve(path : String, fileSystemPath : File) {
+    handle({
+        serve(request, File(fileSystemPath, it.path().substring(path.length())), fileSystemPath)
+    }, {it.path().startsWith(path) && it.method() in listOf(HttpMethod.GET, HttpMethod.HEAD)})
+}
