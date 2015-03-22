@@ -11,7 +11,50 @@ import java.util.Date
 
 private fun Long.toHexString() = java.lang.Long.toHexString(this)
 
-public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostTop : File? = null) {
+[suppress("NOTHING_TO_INLINE")]
+public inline fun HttpServerResponse.serveDirectory(request : HttpServerRequest, dir : File) {
+    body {
+        write("<!DOCTYPE html>\n<html>\n<head>\n\t<title>${request.path()} directory listing</title>\n")
+        write("""
+        <style type="text/css">
+            p {
+                margin: 3px 15px
+            }
+        </style>
+        </head><body>
+        """)
+
+        write("<h1>Directory listing ${request.path()}</h1>\n")
+
+        dir.listFiles()?.forEach {
+            writeBuffer {
+                appendString("<p>")
+
+                appendString(when {
+                    it.isDirectory() -> "[D]"
+                    it.isFile() -> "[F]"
+                    else -> "[?]"
+                })
+
+                appendString(" <a href=\"")
+                appendString(request.path())
+                if (!request.path().endsWith("/")) {
+                    appendString("/")
+                }
+                appendString(it.getName()) // TODO better resolve
+                appendString("\">")
+                appendString(it.getName())
+                appendString("</a>")
+
+                appendString("</p>\n")
+            }
+        }
+
+        write("</body></html>")
+    }
+}
+
+public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostTop : File, directoryListingEnabled : Boolean = true) {
     setChunked(false)
 
     if (request.method() !in listOf(HttpMethod.GET, HttpMethod.HEAD)) {
@@ -30,10 +73,22 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
         return
     }
 
-    if (!f.canRead() || (mostTop != null && !f.isDescendant(mostTop))) {
+    if ((f.isFile() && !f.canRead()) || !f.isDescendant(mostTop)) {
         setStatus(HttpResponseStatus.FORBIDDEN.code(), "Access denied")
         body {
             write("<html><body><h1>The requested file couldn't be read</h1></body></html>")
+        }
+        return
+    }
+
+    if (f.isDirectory()) {
+        if (directoryListingEnabled) {
+            serveDirectory(request, f)
+        } else {
+            setStatus(HttpResponseStatus.FORBIDDEN.code(), "Access denied")
+            body {
+                write("<html><body><h1>Directory listing is disabled</h1></body></html>")
+            }
         }
         return
     }
