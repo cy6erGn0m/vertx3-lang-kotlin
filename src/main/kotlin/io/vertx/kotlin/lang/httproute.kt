@@ -52,6 +52,24 @@ public inline fun Route.GET(path: String, block: HttpServerResponse.(HttpServerR
     }
 }
 
+public inline fun Route.POST(path: String, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
+    handle(block) {
+        it.method() == HttpMethod.POST && it.path() == path
+    }
+}
+
+public inline fun Route.method(method: HttpMethod, path: String, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
+    handle(block) {
+        it.method() == method && it.path() == path
+    }
+}
+
+public inline fun Route.method_g(method: HttpMethod, globs: List<Pattern>, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
+    handle(block) { request ->
+        request.method() == method && globs.any {it.matcher(request.path()).find()}
+    }
+}
+
 public inline fun Route.GET_g(globs: List<Pattern>, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
     handle(block) { request ->
         request.method() == HttpMethod.GET && globs.any {it.matcher(request.path()).find()}
