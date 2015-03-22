@@ -1,6 +1,7 @@
 package examples.route
 
 import io.vertx.kotlin.lang.*
+import kotlinx.util.with
 
 fun main(args: Array<String>) {
     DefaultVertx {
@@ -16,10 +17,11 @@ fun main(args: Array<String>) {
                     write("""<!doctype html>
                     <html>
                         <head>
-                            <title>${request.path()}</title>
+                            <title>${"[^/]+$".toRegex().matcher(request.path()).with{find()}.group()}</title>
                         </head>
                         <body>
                             <h1>Dynamic page</h1>
+                            <p>The requested path is ${request.path()}</p>
                         </body>
                     </html>
                     """)
