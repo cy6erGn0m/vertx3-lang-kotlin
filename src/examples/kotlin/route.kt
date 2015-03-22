@@ -10,6 +10,21 @@ fun main(args: Array<String>) {
                     "field1" to "test me not"
                 }
             }
+            GET_g(glob("*.html", "*.htm")) { request ->
+                contentType("text/html")
+                body {
+                    write("""<!doctype html>
+                    <html>
+                        <head>
+                            <title>${request.path()}</title>
+                        </head>
+                        <body>
+                            <h1>Dynamic page</h1>
+                        </body>
+                    </html>
+                    """)
+                }
+            }
 
             otherwise {
                 setStatus(404, "Resource not found")
