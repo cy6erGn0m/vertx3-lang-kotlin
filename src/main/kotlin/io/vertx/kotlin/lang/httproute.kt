@@ -6,13 +6,13 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.InlineOption.ONLY_LOCAL_RETURN
 
+public val patternCache : MutableMap<String, Pattern> = ConcurrentHashMap()
 public class Route(request: HttpServerRequest,
                    response: HttpServerResponse
                    ) {
     public val request: HttpServerRequest = request
     public val response: HttpServerResponse = response
     public var completed: Boolean = false
-    public val patternCache : MutableMap<String, Pattern> = ConcurrentHashMap()
 }
 
 public inline fun Route(inlineOptions(ONLY_LOCAL_RETURN) block: Route.() -> Unit): HttpServerResponse.(HttpServerRequest) -> Unit = {
@@ -80,3 +80,11 @@ public fun String.globToPattern() : Pattern = globPattern.matcher(this).let { m 
 [suppress("NOTHING_TO_INLINE")]
 public inline fun Route.glob(vararg globs : String) : List<Pattern> =
     globs.map { glob -> patternCache.getOrPut(glob) {glob.globToPattern()} }
+
+
+public inline fun Route.serveFileSystem(path : String, fileSystemPath : String, virtualServer : String? = null) {
+    if (!completed && request.path().startsWith(path) && (virtualServer == null || request.getHeader("Host") == virtualServer)) {
+        response.sendFile(fileSystemPath) // TODO resolve file here
+        completed = true
+    }
+}
