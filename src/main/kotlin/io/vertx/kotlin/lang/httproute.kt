@@ -3,6 +3,7 @@ package io.vertx.kotlin.lang
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
+import io.vertx.core.http.ServerWebSocket
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
@@ -90,4 +91,12 @@ public fun Route.serve(path : String, fileSystemPath : File, directoryListingEna
     handle({
         serve(request, File(fileSystemPath, it.path().cutPath(path)), fileSystemPath, directoryListingEnabled)
     }, {it.path().startsWith(path) && it.method() in listOf(HttpMethod.GET, HttpMethod.HEAD)})
+}
+
+public inline fun Route.webSocket(path: String, block: ServerWebSocket.() -> Unit) {
+    handle({ request ->
+        request.upgrade().block()
+    }) {
+        it.method() == HttpMethod.GET && it.path() == path
+    }
 }

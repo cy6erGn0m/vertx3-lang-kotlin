@@ -29,6 +29,16 @@ fun main(args: Array<String>) {
                 }
             }
             serve("/files", File("src/main/kotlin/io/vertx/kotlin/lang"))
+            webSocket("/ws") {
+                handler {
+                    val text = it.toString("UTF-8")
+                    if (text == "exit") {
+                        close()
+                    } else {
+                        eventBus().send(textHandlerID(), text)
+                    }
+                }
+            }
 
             otherwise {
                 setStatus(404, "Resource not found")
