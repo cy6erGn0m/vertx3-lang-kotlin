@@ -13,6 +13,7 @@ private fun Long.toHexString() = java.lang.Long.toHexString(this)
 
 [suppress("NOTHING_TO_INLINE")]
 public inline fun HttpServerResponse.serveDirectory(request : HttpServerRequest, dir : File) {
+    contentType("text/html")
     body {
         write("<!DOCTYPE html>\n<html>\n<head>\n\t<title>${request.path()} directory listing</title>\n")
         write("""
