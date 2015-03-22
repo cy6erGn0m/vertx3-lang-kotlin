@@ -1,9 +1,11 @@
 package io.vertx.kotlin.lang
 
+import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.http.ServerWebSocket
+import kotlinx.util.with
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
@@ -19,7 +21,22 @@ public class Route(request: HttpServerRequest,
 }
 
 public inline fun Route(inlineOptions(ONLY_LOCAL_RETURN) block: Route.() -> Unit): HttpServerResponse.(HttpServerRequest) -> Unit = {
-    Route(it, this).block()
+    Route(it, this).with {
+        block()
+        if (!completed) {
+            setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE.code(), "Route not configured")
+            contentType("text/html")
+            body {
+                write("""<!DOCTYPE html>
+                <html><head><title>Route not configured</title></head>
+                <body>
+                    <h1>Route not configured for ${it.path()}</h1>
+                </body>
+                </html>
+                """)
+            }
+        }
+    }
 }
 
 public inline fun Route.handle(block: HttpServerResponse.(HttpServerRequest) -> Unit, predicate : (HttpServerRequest) -> Boolean) {
