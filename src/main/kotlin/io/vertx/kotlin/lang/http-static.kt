@@ -118,7 +118,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
         val lastModified = dateFormatLocal.get().parse(dateFormatLocal.get().format(Date(f.lastModified())))
 
         if (modifiedSince >= lastModified) {
-            setStatusCode(HttpResponseStatus.NOT_MODIFIED.code())
+            setStatusCode(HttpResponseStatus.NOT_MODIFIED)
             end()
             return@serve
         }
