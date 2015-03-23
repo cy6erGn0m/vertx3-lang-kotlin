@@ -59,7 +59,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
     setChunked(false)
 
     if (request.method() !in listOf(HttpMethod.GET, HttpMethod.HEAD)) {
-        setStatus(HttpResponseStatus.METHOD_NOT_ALLOWED.code(), "Method ${request.method()} not allowed")
+        setStatus(HttpResponseStatus.METHOD_NOT_ALLOWED, "Method ${request.method()} not allowed")
         body {
             write("<html><body><h1>The requested method ${request.method()} is not allowed</h1></body></html>")
         }
@@ -75,7 +75,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
     }
 
     if ((f.isFile() && !f.canRead()) || !f.isDescendant(mostTop)) {
-        setStatus(HttpResponseStatus.FORBIDDEN.code(), "Access denied")
+        setStatus(HttpResponseStatus.FORBIDDEN, "Access denied")
         body {
             write("<html><body><h1>The requested file couldn't be read</h1></body></html>")
         }
@@ -86,7 +86,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
         if (directoryListingEnabled) {
             serveDirectory(request, f)
         } else {
-            setStatus(HttpResponseStatus.FORBIDDEN.code(), "Access denied")
+            setStatus(HttpResponseStatus.FORBIDDEN, "Access denied")
             body {
                 write("<html><body><h1>Directory listing is disabled</h1></body></html>")
             }
@@ -98,7 +98,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
     val ifMatchEtags = request.headers().getAll(HttpHeaders.IF_MATCH).flatMap { it.split("\\s*,\\s*").toList() }
     if (ifMatchEtags.isNotEmpty()) {
         if (etag !in ifMatchEtags && "*" !in ifMatchEtags) {
-            setStatusCode(HttpResponseStatus.NOT_MODIFIED.code())
+            setStatusCode(HttpResponseStatus.NOT_MODIFIED)
             end()
             return // TODO If-Match need testing
         }
@@ -107,7 +107,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
     val ifNotMatchEtags = request.headers().getAll(HttpHeaders.IF_NONE_MATCH).flatMap { it.split("\\s*,\\s*").toList() }
     if (ifNotMatchEtags.isNotEmpty()) {
         if (etag in ifNotMatchEtags || "*" in ifNotMatchEtags) {
-            setStatusCode(HttpResponseStatus.NOT_MODIFIED.code())
+            setStatusCode(HttpResponseStatus.NOT_MODIFIED)
             end()
             return
         }
@@ -124,8 +124,8 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
         }
     }
 
-    header(HttpHeaders.LAST_MODIFIED.toString(), Date(f.lastModified()))
-    header(HttpHeaders.ETAG.toString(), etag)
+    header(HttpHeaders.LAST_MODIFIED, Date(f.lastModified()))
+    header(HttpHeaders.ETAG, etag)
 
     if (request.method() == HttpMethod.GET) {
         sendFile(f.getAbsolutePath())

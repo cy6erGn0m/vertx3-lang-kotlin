@@ -6,7 +6,7 @@ import java.io.File
 
 fun main(args: Array<String>) {
     DefaultVertx {
-        httpServer(8084, "0.0.0.0", Route {
+        httpServer(port = 8084, block = Route {
             GET("/path") { request ->
                 bodyJson {
                     "field1" to "test me not"

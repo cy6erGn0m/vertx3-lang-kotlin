@@ -24,7 +24,7 @@ public inline fun Route(inlineOptions(ONLY_LOCAL_RETURN) block: Route.() -> Unit
     Route(it, this).with {
         block()
         if (!completed) {
-            setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE.code(), "Route not configured")
+            setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE, "Route not configured")
             contentType("text/html")
             body {
                 write("""<!DOCTYPE html>

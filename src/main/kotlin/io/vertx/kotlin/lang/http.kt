@@ -1,6 +1,7 @@
 package io.vertx.kotlin.lang
 
 
+import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core
 import io.vertx.core.Handler
 import io.vertx.core.Verticle
@@ -63,11 +64,11 @@ public inline fun HttpServerResponse.replyJson(block: Json.() -> Any): Unit {
     Buffer { appendJson(block) }.let { buffer -> this.write(buffer) }
 }
 
-public fun HttpServerResponse.header(headerName : String, headerValue : String) : Unit {
+public fun HttpServerResponse.header(headerName : CharSequence, headerValue : String) : Unit {
     putHeader(headerName, headerValue)
 }
 
-public fun HttpServerResponse.header(headerName : String, headerValue : Number) : Unit {
+public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Number) : Unit {
     putHeader(headerName, headerValue.toString())
 }
 
@@ -77,7 +78,7 @@ private val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
     }
 }
 
-public fun HttpServerResponse.header(headerName : String, headerValue : Date) : Unit {
+public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Date) : Unit {
     putHeader(headerName, dateFormatLocal.get().format(headerValue))
 }
 
@@ -85,10 +86,16 @@ public fun HttpServerResponse.contentType(mimeType : String, encoding : String =
     header("Content-Type", "$mimeType;charset=$encoding")
 }
 
-public fun HttpServerResponse.setStatus(code : Int, message : String) {
+public fun HttpServerResponse.setStatus(code : Int, message : String) : HttpServerResponse = with  {
     setStatusCode(code)
     setStatusMessage(message)
 }
+
+public fun HttpServerResponse.setStatus(status: HttpResponseStatus, message : String) : HttpServerResponse =
+    setStatus(status.code(), message)
+
+public fun HttpServerResponse.setStatusCode(status: HttpResponseStatus) : HttpServerResponse = setStatusCode(status.code())
+
 
 public inline var HttpServerResponse.contentLength : Long
     get() = headers().getAll("Content-Length").distinct().single().toLong()
