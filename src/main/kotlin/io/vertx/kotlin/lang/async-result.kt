@@ -4,7 +4,7 @@ package io.vertx.kotlin.lang
 import io.vertx.core
 import io.vertx.core.Future
 
-public trait AsyncResult<T>
+public interface AsyncResult<T>
 public class AsyncSuccessResult<T>(val result: T) : AsyncResult<T>
 public class AsyncErrorResult<T>(val error: Throwable) : AsyncResult<T>
 

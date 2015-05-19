@@ -7,11 +7,11 @@ import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import java.io.File
 import java.lang.ref.ReferenceQueue
-import java.util.Date
+import java.util.*
 
 private fun Long.toHexString() = java.lang.Long.toHexString(this)
 
-[suppress("NOTHING_TO_INLINE")]
+@suppress("NOTHING_TO_INLINE")
 public inline fun HttpServerResponse.serveDirectory(request : HttpServerRequest, dir : File) {
     contentType("text/html")
     body {
@@ -55,6 +55,22 @@ public inline fun HttpServerResponse.serveDirectory(request : HttpServerRequest,
     }
 }
 
+private fun File.parents() : List<File> {
+    val parents = ArrayList<File>()
+    var current = this
+
+    do {
+        val parent = current.parent
+        if (parent == null || parent == current) {
+            break
+        }
+
+        parents.add(parent)
+    } while (true)
+
+    return parents
+}
+
 public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostTop : File, directoryListingEnabled : Boolean = true) {
     setChunked(false)
 
@@ -74,7 +90,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
         return
     }
 
-    if ((f.isFile() && !f.canRead()) || !f.isDescendant(mostTop)) {
+    if ((f.isFile() && !f.canRead()) || mostTop !in f.parents()) {
         setStatus(HttpResponseStatus.FORBIDDEN, "Access denied")
         body {
             write("<html><body><h1>The requested file couldn't be read</h1></body></html>")
@@ -95,7 +111,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
     }
 
     val etag = "E/${f.length().toHexString()}/${f.lastModified().toHexString()}"
-    val ifMatchEtags = request.headers().getAll(HttpHeaders.IF_MATCH).flatMap { it.split("\\s*,\\s*").toList() }
+    val ifMatchEtags = request.headers().getAll(HttpHeaders.IF_MATCH).flatMap { it.split("\\s*,\\s*".toRegex()).toList() }
     if (ifMatchEtags.isNotEmpty()) {
         if (etag !in ifMatchEtags && "*" !in ifMatchEtags) {
             setStatusCode(HttpResponseStatus.NOT_MODIFIED)
@@ -104,7 +120,7 @@ public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostT
         }
     }
 
-    val ifNotMatchEtags = request.headers().getAll(HttpHeaders.IF_NONE_MATCH).flatMap { it.split("\\s*,\\s*").toList() }
+    val ifNotMatchEtags = request.headers().getAll(HttpHeaders.IF_NONE_MATCH).flatMap { it.split("\\s*,\\s*".toRegex()).toList() }
     if (ifNotMatchEtags.isNotEmpty()) {
         if (etag in ifNotMatchEtags || "*" in ifNotMatchEtags) {
             setStatusCode(HttpResponseStatus.NOT_MODIFIED)
