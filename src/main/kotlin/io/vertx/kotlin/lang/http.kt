@@ -14,6 +14,7 @@ import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.net.NetServerOptions
 import io.vertx.kotlin.lang.json.Json
 import kotlinx.util.with
+import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -54,6 +55,10 @@ public fun HttpServer.listen(listenHandler: (AsyncResult<HttpServer>) -> Unit): 
 
 public inline fun HttpServerResponse.replyBuffer(block: () -> Buffer) {
     write(block()).end()
+}
+
+public fun HttpServerResponse.replyText(text: String, charset: Charset = Charsets.UTF_8) {
+    end(text, charset.name())
 }
 
 public inline fun HttpServerRequest.replyBuffer(block: () -> Buffer) {
