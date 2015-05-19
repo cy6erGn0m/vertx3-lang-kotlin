@@ -4,7 +4,7 @@ buildscript {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   }
   dependencies {
-    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:0.1-SNAPSHOT'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
   }
 }
 
@@ -25,7 +25,7 @@ sourceSets {
 }
 
 dependencies {
-  compile 'org.jetbrains.kotlin:kotlin-stdlib:0.1-SNAPSHOT'
+  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   testCompile 'junit:junit:4.+'
   testCompile "org.mockito:mockito-core:1.+"
 
