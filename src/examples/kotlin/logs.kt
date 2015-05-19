@@ -1,9 +1,7 @@
 package examples
 
 import io.vertx.core.AbstractVerticle
-import io.vertx.core.logging.Logger
 import io.vertx.core.logging.impl.LoggerFactory
-import io.vertx.kotlin.lang.createHttpServer
 
 class LoggerVerticle : AbstractVerticle() {
     val logger = LoggerFactory.getLogger("me")

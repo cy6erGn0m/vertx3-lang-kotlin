@@ -7,7 +7,6 @@ import io.vertx.kotlin.lang.json.JsonArray
 import io.vertx.kotlin.lang.json.JsonObject
 import io.vertx.kotlin.lang.json.array_
 import io.vertx.kotlin.lang.json.object_
-import kotlinx.util.with
 
 class NetSocketsEcho : AbstractVerticle() {
     override fun start() {

@@ -6,7 +6,6 @@ import io.vertx.core.Future
 import io.vertx.kotlin.lang.*
 import io.vertx.kotlin.lang.json.object_
 
-
 class DeployVerticle : AbstractVerticle() {
     override fun start() {
         verticle("deployMe") {

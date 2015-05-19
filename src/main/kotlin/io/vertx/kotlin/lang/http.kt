@@ -52,24 +52,36 @@ public fun HttpServer.listen(listenHandler: (AsyncResult<HttpServer>) -> Unit): 
     }
 })
 
-public fun HttpServerResponse.replyBuffer(block: () -> Buffer) {
+public inline fun HttpServerResponse.replyBuffer(block: () -> Buffer) {
     write(block()).end()
 }
 
-public inline fun HttpServerResponse.replyBuffer(block: Buffer.() -> Unit): Unit {
+public inline fun HttpServerRequest.replyBuffer(block: () -> Buffer) {
+    response().replyBuffer(block)
+}
+
+public inline fun HttpServerResponse.replyWithBuffer(block: Buffer.() -> Unit) {
     write(Buffer(8192, block)).end()
 }
 
-public inline fun HttpServerResponse.replyJson(block: Json.() -> Any): Unit {
-    Buffer { appendJson(block) }.let { buffer -> this.write(buffer) }
+public inline fun HttpServerRequest.replyWithBuffer(block: Buffer.() -> Unit) {
+    response().replyWithBuffer(block)
 }
 
-public fun HttpServerResponse.header(headerName : CharSequence, headerValue : String) : Unit {
-    putHeader(headerName, headerValue)
+public inline fun HttpServerResponse.replyJson(block: Json.() -> Any) {
+    return Buffer { appendJson(block) }.let { buffer -> this.write(buffer).end() }
 }
 
-public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Number) : Unit {
-    putHeader(headerName, headerValue.toString())
+public inline fun HttpServerRequest.replyJson(block: Json.() -> Any) {
+    response().replyJson(block)
+}
+
+public fun HttpServerResponse.header(headerName : CharSequence, headerValue : String) : HttpServerResponse {
+    return putHeader(headerName, headerValue)
+}
+
+public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Number) : HttpServerResponse {
+    return putHeader(headerName, headerValue.toString())
 }
 
 private val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
@@ -82,8 +94,8 @@ public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Da
     putHeader(headerName, dateFormatLocal.get().format(headerValue))
 }
 
-public fun HttpServerResponse.contentType(mimeType : String, encoding : String = "utf-8") : Unit {
-    header("Content-Type", "$mimeType;charset=$encoding")
+public fun HttpServerResponse.contentType(mimeType : String, encoding : String = "utf-8") : HttpServerResponse {
+    return header("Content-Type", "$mimeType;charset=$encoding")
 }
 
 public fun HttpServerResponse.setStatus(code : Int, message : String) : HttpServerResponse = with  {
@@ -116,4 +128,8 @@ public inline fun HttpServerResponse.bodyJson(block : Json.() -> Any) {
     body {
         replyJson(block)
     }
+}
+
+public inline fun HttpServerRequest.response(block: HttpServerResponse.() -> Unit) {
+    response().with(block)
 }
