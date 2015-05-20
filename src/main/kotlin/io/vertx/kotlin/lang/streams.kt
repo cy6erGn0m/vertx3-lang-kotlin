@@ -7,16 +7,16 @@ import io.vertx.core.streams.Pump
 import io.vertx.core.streams.ReadStream
 import io.vertx.core.streams.WriteStream
 
-public fun <T> ReadStream<T>.startPumpTo(out : WriteStream<T>) : Pump =
+public fun <T> ReadStream<T>.startPumpTo(out: WriteStream<T>): Pump =
         Pump.pump(this, out).start()
 
-public fun <T> ReadStream<T>.startPumpTo(maxQueueSize : Int, out : WriteStream<T>) : Pump =
+public fun <T> ReadStream<T>.startPumpTo(maxQueueSize: Int, out: WriteStream<T>): Pump =
         Pump.pump(this, out, maxQueueSize).start()
 
 @suppress("UNCHECKED_CAST")
-public inline fun <T : WriteStream<Buffer>> T.writeBuffer(initialSize : Int = 8192, block : Buffer.() -> Unit) : T = write(Buffer(initialSize, block)) as T
+public inline fun <T : WriteStream<Buffer>> T.writeBuffer(initialSize: Int = 8192, block: Buffer.() -> Unit): T = write(Buffer(initialSize, block)) as T
 
-public inline fun HttpServerResponse.use(block : HttpServerResponse.() -> Unit) : Unit {
+public inline fun HttpServerResponse.use(block: HttpServerResponse.() -> Unit): Unit {
     try {
         block()
     } finally {

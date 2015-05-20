@@ -6,13 +6,13 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import java.io.File
-import java.lang.ref.ReferenceQueue
-import java.util.*
+import java.util.ArrayList
+import java.util.Date
 
 private fun Long.toHexString() = java.lang.Long.toHexString(this)
 
 @suppress("NOTHING_TO_INLINE")
-public inline fun HttpServerResponse.serveDirectory(request : HttpServerRequest, dir : File) {
+public inline fun HttpServerResponse.serveDirectory(request: HttpServerRequest, dir: File) {
     contentType("text/html")
     body {
         write("<!DOCTYPE html>\n<html>\n<head>\n\t<title>${request.path()} directory listing</title>\n")
@@ -55,7 +55,7 @@ public inline fun HttpServerResponse.serveDirectory(request : HttpServerRequest,
     }
 }
 
-private fun File.parents() : List<File> {
+private fun File.parents(): List<File> {
     val parents = ArrayList<File>()
     var current = this
 
@@ -71,7 +71,7 @@ private fun File.parents() : List<File> {
     return parents
 }
 
-public fun HttpServerResponse.serve(request : HttpServerRequest, f : File, mostTop : File, directoryListingEnabled : Boolean = true) {
+public fun HttpServerResponse.serve(request: HttpServerRequest, f: File, mostTop: File, directoryListingEnabled: Boolean = true) {
     setChunked(false)
 
     if (request.method() !in listOf(HttpMethod.GET, HttpMethod.HEAD)) {

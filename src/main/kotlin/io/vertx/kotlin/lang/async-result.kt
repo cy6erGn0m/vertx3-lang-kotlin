@@ -13,13 +13,13 @@ public class AsyncErrorResult<T>(val error: Throwable) : AsyncResult<T>
 public inline val AsyncResult<*>.success: Boolean
     get() = this is AsyncSuccessResult
 
-public fun <T> AsyncResult<T>.sendToFuture(f : Future<T>) : Unit = when(this) {
+public fun <T> AsyncResult<T>.sendToFuture(f: Future<T>): Unit = when (this) {
     is AsyncSuccessResult -> f.complete(result)
     is AsyncErrorResult -> f.fail(error)
     else -> f.fail(IllegalStateException("Unknown AsyncResult"))
 }
 
-public fun AsyncResult<*>.sendToFutureVoid(f : Future<Void>) : Unit = when(this) {
+public fun AsyncResult<*>.sendToFutureVoid(f: Future<Void>): Unit = when (this) {
     is AsyncSuccessResult -> f.complete(null)
     is AsyncErrorResult -> f.fail(error)
     else -> f.fail(IllegalStateException("Unknown AsyncResult"))

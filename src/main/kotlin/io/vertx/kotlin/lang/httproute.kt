@@ -11,10 +11,11 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.InlineOption.ONLY_LOCAL_RETURN
 
-public val patternCache : MutableMap<String, Pattern> = ConcurrentHashMap()
+public val patternCache: MutableMap<String, Pattern> = ConcurrentHashMap()
+
 public class Route(request: HttpServerRequest,
                    response: HttpServerResponse
-                   ) {
+) {
     public val request: HttpServerRequest = request
     public val response: HttpServerResponse = response
     public var completed: Boolean = false
@@ -39,7 +40,7 @@ public inline fun Route(inlineOptions(ONLY_LOCAL_RETURN) block: Route.() -> Unit
     }
 }
 
-public inline fun Route.handle(block: HttpServerResponse.(HttpServerRequest) -> Unit, predicate : (HttpServerRequest) -> Boolean) {
+public inline fun Route.handle(block: HttpServerResponse.(HttpServerRequest) -> Unit, predicate: (HttpServerRequest) -> Boolean) {
     if (!completed && predicate(request)) {
         response.block(request)
         completed = true
@@ -66,24 +67,24 @@ public inline fun Route.method(method: HttpMethod, path: String, block: HttpServ
 
 public inline fun Route.method_g(method: HttpMethod, globs: List<Pattern>, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
     handle(block) { request ->
-        request.method() == method && globs.any {it.matcher(request.path()).find()}
+        request.method() == method && globs.any { it.matcher(request.path()).find() }
     }
 }
 
 public inline fun Route.GET_g(globs: List<Pattern>, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
     handle(block) { request ->
-        request.method() == HttpMethod.GET && globs.any {it.matcher(request.path()).find()}
+        request.method() == HttpMethod.GET && globs.any { it.matcher(request.path()).find() }
     }
 }
 
 public inline fun Route.otherwise(block: HttpServerResponse.(HttpServerRequest) -> Unit) {
-    handle(block) {true}
+    handle(block) { true }
 }
 
 
 private val globPattern = Pattern.compile("""\?|\*+|(\[[^\]]+\])""")
 private fun String.smartQuote() = if (isEmpty()) "" else Pattern.quote(this)
-public fun String.globToPattern() : Pattern = globPattern.matcher(this).let { m ->
+public fun String.globToPattern(): Pattern = globPattern.matcher(this).let { m ->
     Pattern.compile(StringBuilder {
         if (this@globToPattern.startsWith("/")) {
             append("^")
@@ -116,16 +117,16 @@ public fun String.globToPattern() : Pattern = globPattern.matcher(this).let { m 
 }
 
 @suppress("NOTHING_TO_INLINE")
-public inline fun Route.glob(vararg globs : String) : List<Pattern> =
-    globs.map { glob -> patternCache.getOrPut(glob) {glob.globToPattern()} }
+public inline fun Route.glob(vararg globs: String): List<Pattern> =
+        globs.map { glob -> patternCache.getOrPut(glob) { glob.globToPattern() } }
 
-public fun String.cutPath(basePath : String) : String = if (this.endsWith("/")) substring(basePath.length(), length() - 1) else substring(basePath.length())
+public fun String.cutPath(basePath: String): String = if (this.endsWith("/")) substring(basePath.length(), length() - 1) else substring(basePath.length())
 
 @suppress("NOTHING_TO_INLINE")
-public fun Route.serve(path : String, fileSystemPath : File, directoryListingEnabled : Boolean = true) {
+public fun Route.serve(path: String, fileSystemPath: File, directoryListingEnabled: Boolean = true) {
     handle({
         serve(request, File(fileSystemPath, it.path().cutPath(path)), fileSystemPath, directoryListingEnabled)
-    }, {it.path().startsWith(path) && it.method() in listOf(HttpMethod.GET, HttpMethod.HEAD)})
+    }, { it.path().startsWith(path) && it.method() in listOf(HttpMethod.GET, HttpMethod.HEAD) })
 }
 
 public inline fun Route.webSocket(path: String, block: ServerWebSocket.() -> Unit) {

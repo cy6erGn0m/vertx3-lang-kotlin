@@ -81,11 +81,11 @@ public inline fun HttpServerRequest.replyJson(block: Json.() -> Any) {
     response().replyJson(block)
 }
 
-public fun HttpServerResponse.header(headerName : CharSequence, headerValue : String) : HttpServerResponse {
+public fun HttpServerResponse.header(headerName: CharSequence, headerValue: String): HttpServerResponse {
     return putHeader(headerName, headerValue)
 }
 
-public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Number) : HttpServerResponse {
+public fun HttpServerResponse.header(headerName: CharSequence, headerValue: Number): HttpServerResponse {
     return putHeader(headerName, headerValue.toString())
 }
 
@@ -95,39 +95,39 @@ private val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
     }
 }
 
-public fun HttpServerResponse.header(headerName : CharSequence, headerValue : Date) : Unit {
+public fun HttpServerResponse.header(headerName: CharSequence, headerValue: Date): Unit {
     putHeader(headerName, dateFormatLocal.get().format(headerValue))
 }
 
-public fun HttpServerResponse.contentType(mimeType : String, encoding : String = "utf-8") : HttpServerResponse {
+public fun HttpServerResponse.contentType(mimeType: String, encoding: String = "utf-8"): HttpServerResponse {
     return header("Content-Type", "$mimeType;charset=$encoding")
 }
 
-public fun HttpServerResponse.setStatus(code : Int, message : String) : HttpServerResponse = with  {
+public fun HttpServerResponse.setStatus(code: Int, message: String): HttpServerResponse = with {
     setStatusCode(code)
     setStatusMessage(message)
 }
 
-public fun HttpServerResponse.setStatus(status: HttpResponseStatus, message : String) : HttpServerResponse =
-    setStatus(status.code(), message)
+public fun HttpServerResponse.setStatus(status: HttpResponseStatus, message: String): HttpServerResponse =
+        setStatus(status.code(), message)
 
-public fun HttpServerResponse.setStatusCode(status: HttpResponseStatus) : HttpServerResponse = setStatusCode(status.code())
+public fun HttpServerResponse.setStatusCode(status: HttpResponseStatus): HttpServerResponse = setStatusCode(status.code())
 
 
-public inline var HttpServerResponse.contentLength : Long
+public inline var HttpServerResponse.contentLength: Long
     get() = headers().getAll("Content-Length").distinct().single().toLong()
     set(newValue) {
         setChunked(false)
         header("Content-Length", newValue)
     }
 
-public inline fun HttpServerResponse.body(block : HttpServerResponse.() -> Unit) {
+public inline fun HttpServerResponse.body(block: HttpServerResponse.() -> Unit) {
     setChunked(true)
     block()
     end()
 }
 
-public inline fun HttpServerResponse.bodyJson(block : Json.() -> Any) {
+public inline fun HttpServerResponse.bodyJson(block: Json.() -> Any) {
     setChunked(true)
     contentType("application/json")
     body {
