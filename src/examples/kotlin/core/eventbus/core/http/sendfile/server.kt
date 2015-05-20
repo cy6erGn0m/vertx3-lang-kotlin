@@ -6,7 +6,7 @@ import java.io.File
 
 fun server(vertx: Vertx) {
     vertx.httpServer(8080, block = Route {
-        GET_g(glob("/*.html")) { request ->
+        GET(glob("/*.html")) { request ->
             val file = File(request.path().substringAfterLast("/", request.path()))
 
             if (file.exists()) {

@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
                     "field1" to "test me not"
                 }
             }
-            GET_g(glob("*.html", "*.htm")) { request ->
+            GET(glob("*.html", "*.htm")) { request ->
                 contentType("text/html")
                 body {
                     write("""<!doctype html>

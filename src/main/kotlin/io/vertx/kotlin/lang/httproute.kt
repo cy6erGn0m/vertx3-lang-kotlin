@@ -71,7 +71,7 @@ public inline fun Route.method_g(method: HttpMethod, globs: List<Pattern>, block
     }
 }
 
-public inline fun Route.GET_g(globs: List<Pattern>, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
+public inline fun Route.GET(globs: List<Pattern>, block: HttpServerResponse.(HttpServerRequest) -> Unit) {
     handle(block) { request ->
         request.method() == HttpMethod.GET && globs.any { it.matcher(request.path()).find() }
     }
