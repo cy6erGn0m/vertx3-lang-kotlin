@@ -33,6 +33,7 @@ dependencies {
   testCompile "org.mockito:mockito-core:1.+"
 
   compile 'io.vertx:vertx-core:3.0.0'
+  compile 'io.vertx:vertx-jdbc-client:3.0.0'
 }
 
 
