@@ -1,6 +1,15 @@
-#Vert.x 3 Kotlin bindings
+# Vert.x 3 Kotlin bindings
 
-Simple REST service:
+This module provides [Kotlin](http://kotlinlang.org) language bindings including DSL and extension functions 
+for [vert.x 3](http://vertx.io/)
+
+# Get started (Gradle)
+
+**TBD**
+
+## Examples
+
+### Simple REST service
 
 ```kotlin
 fun main(args: Array<String>) {
@@ -8,8 +17,8 @@ fun main(args: Array<String>) {
         httpServer(8084) { request ->
             bodyJson {
                 object_(
-                        "title" to "Hello, my remote peer",
-                        "message" to "You address is ${request.remoteAddress().host()}"
+                    "title" to "Hello, my remote peer",
+                    "message" to "You address is ${request.remoteAddress().host()}"
                 )
             }
         }
@@ -17,7 +26,8 @@ fun main(args: Array<String>) {
 }
 ```
 
-Simple echo socket server
+### Simple echo socket server
+
 ```kotlin
 class EchoSocket : AbstractVerticle() {
     override fun start() {
@@ -28,7 +38,8 @@ class EchoSocket : AbstractVerticle() {
 }
 ```
 
-HTTP routing example:
+### HTTP routing example (non-apex)
+
 ```kotlin
 import io.vertx.kotlin.lang.*
 
@@ -52,4 +63,6 @@ fun main(args: Array<String>) {
 }
 ```
 
-See https://github.com/cy6erGn0m/vertx3-lang-kotlin/tree/master/src/examples/kotlin for more examples
+### More examples
+See [more examples](src/examples/kotlin). Some of them just copied from original examples at vert.x repo.
+
