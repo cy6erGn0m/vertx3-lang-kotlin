@@ -5,6 +5,7 @@ import kotlinx.util.with
 import java.io.File
 
 fun main(args: Array<String>) {
+    HttpServerOptions(8080, "test.org")
     DefaultVertx {
         httpServer(port = 8084, block = Route {
             GET("/path") { request ->
@@ -18,7 +19,7 @@ fun main(args: Array<String>) {
                     write("""<!doctype html>
                     <html>
                         <head>
-                            <title>${"[^/]+$".toRegex().matcher(request.path()).with{find()}.group()}</title>
+                            <title>${"[^/]+$".toRegex().match(request.path())?.value}</title>
                         </head>
                         <body>
                             <h1>Dynamic page</h1>

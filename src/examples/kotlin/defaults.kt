@@ -1,7 +1,7 @@
 package examples.defaults
 
 import examples.LoggerVerticle
-import io.vertx.core.logging.impl.LoggerFactory
+import io.vertx.core.logging.LoggerFactory
 import io.vertx.kotlin.lang.*
 import io.vertx.kotlin.lang.json.object_
 

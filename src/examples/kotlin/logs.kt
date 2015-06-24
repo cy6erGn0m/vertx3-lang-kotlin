@@ -1,7 +1,7 @@
 package examples
 
 import io.vertx.core.AbstractVerticle
-import io.vertx.core.logging.impl.LoggerFactory
+import io.vertx.core.logging.LoggerFactory
 
 class LoggerVerticle : AbstractVerticle() {
     val logger = LoggerFactory.getLogger("me")
