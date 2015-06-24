@@ -1,4 +1,4 @@
-package core.eventbus.core.http.sendfile
+package core.http.sendfile
 
 import io.vertx.core.Vertx
 import io.vertx.kotlin.lang.*

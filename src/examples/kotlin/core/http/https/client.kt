@@ -1,4 +1,4 @@
-package core.eventbus.core.http.https
+package core.http.https
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientOptions
