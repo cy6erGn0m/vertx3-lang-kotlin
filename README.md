@@ -7,6 +7,13 @@ for [vert.x 3](http://vertx.io/)
 
 **TBD**
 
+### Run simple application
+```bash
+./gradlew runExample
+```
+
+after that open http://localhost:8084/testit.html and try playing with queries.
+
 ## Examples
 
 ### Simple REST service
