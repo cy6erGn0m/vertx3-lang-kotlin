@@ -1,5 +1,6 @@
-package io.vertx.kotlin.lang
+package io.vertx.kotlin.lang.bus
 
+import io.vertx.kotlin.lang.*
 import io.vertx.core.Handler
 import io.vertx.core.eventbus.DeliveryOptions
 import io.vertx.core.eventbus.EventBus

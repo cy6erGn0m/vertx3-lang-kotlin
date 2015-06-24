@@ -1,11 +1,11 @@
 buildscript {
-  repositories {
-    jcenter()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-  }
-  dependencies {
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-  }
+    repositories {
+        jcenter()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
 }
 
 apply plugin: 'java'
@@ -16,11 +16,11 @@ task wrapper(type: Wrapper) {
 }
 
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 repositories {
-  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 sourceSets {
@@ -28,13 +28,20 @@ sourceSets {
 }
 
 dependencies {
-  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-  testCompile 'junit:junit:4.+'
-  testCompile "org.mockito:mockito-core:1.+"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    testCompile 'junit:junit:4.+'
+    testCompile "org.mockito:mockito-core:1.+"
 
-  compile 'io.vertx:vertx-core:3.0.0'
-  compile 'io.vertx:vertx-jdbc-client:3.0.0'
-  compile 'io.vertx:vertx-mail-service:3.0.0'
+    compile 'io.vertx:vertx-core:3.0.0'
+    compile 'io.vertx:vertx-jdbc-client:3.0.0'
+    compile 'io.vertx:vertx-mail-service:3.0.0'
+
+    examplesCompile sourceSets.main.runtimeClasspath
+    examplesCompile sourceSets.main.output
 }
 
 
+task runExample(dependsOn: [classes], type: JavaExec) {
+    main = 'examples.route.RoutePackage'
+    classpath = sourceSets.examples.runtimeClasspath
+}

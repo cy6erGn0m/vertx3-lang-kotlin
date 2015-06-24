@@ -1,6 +1,7 @@
 package core.eventbus.pointtopoint
 
 import io.vertx.kotlin.lang.*
+import io.vertx.kotlin.lang.bus.*
 import io.vertx.core.Vertx
 
 fun sender(vertx: Vertx) {

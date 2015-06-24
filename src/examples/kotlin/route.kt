@@ -5,7 +5,6 @@ import kotlinx.util.with
 import java.io.File
 
 fun main(args: Array<String>) {
-    HttpServerOptions(8080, "test.org")
     DefaultVertx {
         httpServer(port = 8084, block = Route {
             GET("/path") { request ->
