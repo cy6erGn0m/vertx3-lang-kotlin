@@ -32,7 +32,7 @@ dependencies {
   testCompile 'junit:junit:4.+'
   testCompile "org.mockito:mockito-core:1.+"
 
-  compile 'io.vertx:vertx-core:3.0.0-SNAPSHOT'
+  compile 'io.vertx:vertx-core:3.0.0'
 }
 
 
