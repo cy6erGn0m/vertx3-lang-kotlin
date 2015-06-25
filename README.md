@@ -5,7 +5,24 @@ for [vert.x 3](http://vertx.io/)
 
 # Get started (Gradle)
 
-**TBD**
+Please refer to [Kotlin Using Gradle](http://kotlinlang.org/docs/reference/using-gradle.html) for Kotlin Gradle
+configuration before.
+
+When you have kotlin configured properly add the following repository
+
+```groovy
+repositories { maven { url "http://dl.bintray.com/cy6ergn0m/maven" } }
+```
+
+then add dependency
+
+```groovy
+dependencies {
+    compile 'org.jetbrains.kotlinx:vertx3-lang-kotlin:0.0.+'
+}
+```
+
+See [Kotlin vert.x 3 Gradle project example](src/examples/kotlin-vertx3-gradle-example)
 
 ### Run simple application
 ```bash

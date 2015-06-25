@@ -7,9 +7,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
+plugins {
+    id "com.jfrog.bintray" version "1.2"
+}
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: 'maven-publish'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
@@ -17,9 +21,6 @@ task wrapper(type: Wrapper) {
 
 repositories {
     mavenCentral()
-}
-
-repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
@@ -44,4 +45,54 @@ dependencies {
 task runExample(dependsOn: [classes], type: JavaExec) {
     main = 'examples.route.RoutePackage'
     classpath = sourceSets.examples.runtimeClasspath
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+publishing {
+    group = groupId
+    version = project.version
+
+    publications {
+        mavenJava(MavenPublication) {
+            if (plugins.hasPlugin('war')) {
+                from components.web
+            } else {
+                from components.java
+            }
+
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+bintray {
+    pkg {
+        repo = 'maven'
+        name = 'vertx3-lang-kotlin'
+        user = bintray_user
+        key = bintray_apiKey
+
+        publish = true
+        publications = ['mavenJava']
+
+        version {
+            name = project.version.toString()
+
+        }
+    }
 }

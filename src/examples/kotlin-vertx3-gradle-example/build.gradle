@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+repositories {
+    jcenter()
+
+    maven { url "http://dl.bintray.com/cy6ergn0m/maven" }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile 'org.jetbrains.kotlinx:vertx3-lang-kotlin:0.0.+'
+}
+
+task runExample(dependsOn: [classes], type: JavaExec) {
+    main = 'testme.TestmePackage'
+    classpath = sourceSets.main.runtimeClasspath
+}
