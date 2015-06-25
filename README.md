@@ -12,7 +12,7 @@ for [vert.x 3](http://vertx.io/)
 ./gradlew runExample
 ```
 
-after that open http://localhost:8084/testit.html and try playing with queries.
+after that open http://localhost:8084/testit.html and try to play with queries and the [source code](src/examples/kotlin/route.kt).
 
 ## Examples
 
