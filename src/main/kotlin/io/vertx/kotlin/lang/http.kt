@@ -53,12 +53,19 @@ public fun HttpServer.listen(listenHandler: (AsyncResult<HttpServer>) -> Unit): 
     }
 })
 
+public fun HttpServerResponse.endIfNotYet() {
+    if (!ended()) {
+        end()
+    }
+}
+
 public inline fun HttpServerResponse.replyBuffer(block: () -> Buffer) {
-    write(block()).end()
+    write(block()).endIfNotYet()
 }
 
 public fun HttpServerResponse.replyText(text: String, charset: Charset = Charsets.UTF_8) {
-    end(text, charset.name())
+    write(text, charset.name())
+    endIfNotYet()
 }
 
 public inline fun HttpServerRequest.replyBuffer(block: () -> Buffer) {
@@ -66,7 +73,7 @@ public inline fun HttpServerRequest.replyBuffer(block: () -> Buffer) {
 }
 
 public inline fun HttpServerResponse.replyWithBuffer(block: Buffer.() -> Unit) {
-    write(Buffer(8192, block)).end()
+    write(Buffer(8192, block)).endIfNotYet()
 }
 
 public inline fun HttpServerRequest.replyWithBuffer(block: Buffer.() -> Unit) {
@@ -74,7 +81,7 @@ public inline fun HttpServerRequest.replyWithBuffer(block: Buffer.() -> Unit) {
 }
 
 public inline fun HttpServerResponse.replyJson(block: Json.() -> Any) {
-    return Buffer { appendJson(block) }.let { buffer -> this.write(buffer).end() }
+    return Buffer { appendJson(block) }.let { buffer -> this.write(buffer).endIfNotYet() }
 }
 
 public inline fun HttpServerRequest.replyJson(block: Json.() -> Any) {
@@ -124,7 +131,7 @@ public inline var HttpServerResponse.contentLength: Long
 public inline fun HttpServerResponse.body(block: HttpServerResponse.() -> Unit) {
     setChunked(true)
     block()
-    end()
+    endIfNotYet()
 }
 
 public inline fun HttpServerResponse.bodyJson(block: Json.() -> Any) {
