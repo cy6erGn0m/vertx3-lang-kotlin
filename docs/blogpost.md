@@ -93,7 +93,8 @@ fun main(args: Array<String>) {
 }
 ```
 
-Notice functions `Route` and `GET` that just assembles lambdas for you to get corresponding request handler.
+Notice functions `Route` and `GET` that just assembles lambdas for you to get corresponding request handler. Also it
+does a bit magic to get you code even shorter because `this` will be reassigned to response
 What about 404 then? Let's add it too:
 
 ```kotlin
