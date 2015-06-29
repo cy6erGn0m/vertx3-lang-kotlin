@@ -1,18 +1,18 @@
 # Kotlin goes reactive with Vert.x 3
 
-Reactive approach popularity growth every day. The main reason is that traditional thread blocking approach has big
- disadvantage: a running application could stuck if there are many requests that hold too many physical threads.
+Reactive programming is gaining popularity every day. The main reason is that traditional thread blocking approach has a big
+ disadvantage: a running application could get stuck if there are many requests that hold too many physical threads.
  [Kotlin](http://kotlinlang.org) is not an exception so due to the same reason Kotlin programming may be not so pleasant
  as it should be.
 
-Fortunately there is [vert.x](http://vertx.io/) that help you to build
- [reactive](http://www.reactivemanifesto.org/) applications. With new
+Fortunately there is [vert.x](http://vertx.io/) that helps you build
+ [reactive](http://www.reactivemanifesto.org/) applications. With the new
  [vertx3-lang-kotlin](https://github.com/cy6erGn0m/vertx3-lang-kotlin) and
   [RxKotlin](https://github.com/ReactiveX/RxKotlin) it becomes even better.
 
-# Get started
+# Getting started
 
-With vertx you can build your application from small reactive event-driven componets. There are many available [components](http://vertx.io/docs/) that cover many aspects of modern application development. As far as Kotlin has [SAM conversion feature](http://kotlinlang.org/docs/reference/java-interop.html#sam-conversions) you can easily assign asynchronous event handlers with lambdas 
+With vertx you can build your application from small reactive event-driven componets. There are many available [components](http://vertx.io/docs/) that cover many aspects of modern application development. Since Kotlin has [SAM conversion features](http://kotlinlang.org/docs/reference/java-interop.html#sam-conversions), you can easily assign asynchronous event handlers with lambdas 
 
 ```kotlin
 eventbus.send(message) { result ->
@@ -20,18 +20,7 @@ eventbus.send(message) { result ->
 }
 ```
 
-Compare to the same in Java
-```java
-// Java
-eventbus.send(message, new Handler() {
-    @Override
-    public void handle(AsyncResult<Message> result) {
-        System.out.println("Send or failed")
-    }
-})
-```
-
-With Kotlin when statement you can make code even better if you need error handling (generally you do)
+Using the Kotlin `when` statement, you can make the code even better if you need error handling (generally you do)
 
 ```kotlin
 import io.vertx.lang.kotlin.*
@@ -44,7 +33,7 @@ eventbus.send(message) { result ->
 }
 ```
 
-Unfortunately with this approach it is easy to reach so called [callback hell](http://callbackhell.com/):
+Unfortunately with this approach it is easy to reach the so-called [callback hell](http://callbackhell.com/):
 
 ```kotlin
 // never do like this
@@ -83,7 +72,8 @@ eventbus.send(message)
     .subscribe()
 ```
 
-Looks too cool, isn't it? Well, there is nothing completely perfect in real life. If you look deeper you can find some disappointing cases. For example there is no Rx adapter for file uploads handling.  Fortunately with Kotlin it is easy to extend API:
+Looks too cool, isn't it? Well, there is nothing completely perfect in real life. If you look deeper you can find some disappointing cases. For example there is no Rx adapter for file upload handling. Fortunately with Kotlin it is easy to extend the API:
+
 ```kotlin
 fun HttpServerRequest.fileUploadsObservable(): Observable<HttpServerFileUpload> = observable { subscriber ->
     uploadHandler { file ->
@@ -99,9 +89,10 @@ fun HttpServerRequest.fileUploadsObservable(): Observable<HttpServerFileUpload> 
 ```
 
 # Working example
-After all we can proceed to some simple example to demonstrate something working. Let it be small web app that calculates md5 hashes for files that user can upload using web form. 
 
-First of all lets start with empty HTTP server
+Let's proceed with a simple example to demonstrate a full working application, that handles md5 hashes for file that a user can upload from a form.
+
+First of all lets start with an empty HTTP server
 
 ```kotlin
 import io.vertx.kotlin.lang.*
@@ -119,7 +110,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-This server does nothing but always responding the same text. Looks not enough interesting, isn't it? We can respond
+This server does nothing except echo the same text. We can respond
  with some JSON instead:
 
 ```kotlin
@@ -145,14 +136,15 @@ fun main(args: Array<String>) {
 }
 ```
 
-Once I ran it in my browser I can see the following JSON
+Once running it in the browser we can see the following JSON
+
 ```json
 {"os.name":"Linux","processors":8,"agents":["Master","Slave1","Slave2"]}
 
 ```
 
-Quick and simple, isn't it? Well, we have this response to _any_ request but what if I need more control? Here we go
- with httproute provided by vertx3-lang-kotlin library
+Quick and simple, isn't it? Well, we have this response to _any_ request but what if we need more control? We can
+ use the  `httproute` provided by vertx3-lang-kotlin library
 
 ```kotlin
 import io.vertx.kotlin.lang.*
@@ -180,8 +172,9 @@ fun main(args: Array<String>) {
 }
 ```
 
-Notice functions `Route` and `GET` that just assembles lambdas for you to get corresponding request handler. Also it
-does a bit magic to get you code even shorter because `this` will be reassigned to response
+Notice functions `Route` and `GET`  aasemble lambdas for us to get the corresponding request handler. Also it
+does a bit magic to get the code even shorter because `this` will be reassigned to response.
+
 What about 404 then? Let's add it too:
 
 ```kotlin
@@ -212,11 +205,10 @@ fun main(args: Array<String>) {
 }
 ```
 
-After all we still haven't start page so let's add it too. Before begin let me notice that in real life static pages
- should't be done as I am going to do in this example. As it is just example I omit required configurations. In
- real application you also may need template engine. There are tons of them so just take any you like
+We still haven't added the start page though, so let's do that (in real life we might not want static pages). As it is just an example, we'll omit the required configurations. In a 
+ real application, we may also need a template engine. 
 
-So first of all I'll put [index.html](../src/examples/kotlin-vertx3-blog-example/src/main/resources/index.html) page to the resources directory and load it's content like this:
+So first of all we'll place the [index.html](../src/examples/kotlin-vertx3-blog-example/src/main/resources/index.html) page to the resources directory and load its content:
 
 ```kotlin
 val indexPage = ClassLoader.getSystemResourceAsStream("index.html")?.readBytes() 
@@ -225,6 +217,7 @@ val indexPageBuffer = bufferOf(indexPage)
 ```
 
 after that it is easy to use it in `GET("/")`
+
 ```kotlin
 GET("/") { request ->
     contentType("text/html", "UTF-8")
@@ -234,7 +227,7 @@ GET("/") { request ->
 }
 ```
 
-Finally we have to introduce file upload handler at `/upload`
+Finally we have to introduce a file upload handler at `/upload`
 
 ```kotlin
 POST("/upload") { request ->
@@ -266,14 +259,17 @@ POST("/upload") { request ->
 }
 ```
 
-Easy, isn't it? The only remaining is to handle errors. We can rewrite it using Rx reactive streaming in more functional manner.
+Easy, isn't it? The only remaining thing is to handle errors. We can rewrite it using Rx reactive streaming in more functional manner.
+
 For better readibility let's define two data classes:
+
 ```kotlin
 data class NamedEntry<T>(val name: String, val entry: T)
 data class DigestWithSize(val digest: MessageDigest, val size: Long)
 ```
 
 And one function to update digest
+
 ```kotlin
 fun DigestWithSize.update(bytes: ByteArray): DigestWithSize {
     digest.update(bytes)
@@ -281,7 +277,8 @@ fun DigestWithSize.update(bytes: ByteArray): DigestWithSize {
 }
 ```
 
-At first we need to handle uploads Rx observable:
+We need to handle uploads Rx observable:
+
 ```kotlin
 request.fileUploadsObservable()
         .flatMap { fileUpload ->
@@ -292,6 +289,7 @@ request.fileUploadsObservable()
 ```
 
 After that let's filter out empty fields and transform file digests to text:
+
 ```kotlin
 .filter { it.entry.size > 0 || it.name.isNotBlank() }
     .map { "${it.entry.digest.digest().toHexString()}\t${it.name}" }
@@ -299,7 +297,8 @@ After that let's filter out empty fields and transform file digests to text:
     .map { sb -> sb.append("\nDone in ${System.currentTimeMillis() - start} ms\n").toString() }
 ```
 
-And finally write generated text and handle errors:
+Finally we write the generated text and handle errors:
+
 ```kotlin
 .doOnNext { text ->
     val response = request.response()
@@ -311,11 +310,12 @@ And finally write generated text and handle errors:
 ```
 
 That's it. Let's run it with gradle
+
 ```bash
 gradle runExample
 ```
 
-and see results in browser:
+and see the results in browser:
 
 ![screenshot](digests.png)
 
