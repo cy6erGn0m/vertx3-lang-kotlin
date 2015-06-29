@@ -11,8 +11,16 @@ import rx.lang.kotlin.fold
 import rx.lang.kotlin.observable
 import java.security.MessageDigest
 
+data class NamedEntry<T>(val name: String, val entry: T)
+data class DigestWithSize(val digest: MessageDigest, val size: Long)
+
+fun DigestWithSize.update(bytes: ByteArray): DigestWithSize {
+    digest.update(bytes)
+    return copy(size = size + bytes.size())
+}
+
 fun <T> ReadStream<T>.toObservable(): Observable<T> = RxHelper.toObservable(this)
-fun HttpServerRequest.fileUploads(): Observable<HttpServerFileUpload> = observable { subscriber ->
+fun HttpServerRequest.fileUploadsObservable(): Observable<HttpServerFileUpload> = observable { subscriber ->
     uploadHandler { file ->
         subscriber.onNext(file)
     }
@@ -55,14 +63,14 @@ fun main(args: Array<String>) {
                 response.setChunked(true)
                 val start = System.currentTimeMillis()
 
-                request.fileUploads()
+                request.fileUploadsObservable()
                         .flatMap { fileUpload ->
                             fileUpload.toObservable()
-                                    .fold(MessageDigest.getInstance("MD5") to 0) { md, buffer -> md.first.update(buffer.getBytes()); md.first to md.second + buffer.length() }
-                                    .map { fileUpload.filename() to it }
+                                    .fold(DigestWithSize(MessageDigest.getInstance("MD5"), 0L)) { md, buffer -> md.update(buffer.getBytes()) }
+                                    .map { NamedEntry(fileUpload.filename(), it) }
                         }
-                        .filter { it.second.second > 0 }
-                        .map { "${it.second.first.digest().toHexString()}\t${it.first}" }
+                        .filter { it.entry.size > 0 || it.name.isNotBlank() }
+                        .map { "${it.entry.digest.digest().toHexString()}\t${it.name}" }
                         .fold(StringBuilder(8192)) { sb, e -> sb.append(e).append("\n") }
                         .map { sb -> sb.append("\nDone in ${System.currentTimeMillis() - start} ms\n").toString() }
                         .doOnNext { text ->
@@ -70,6 +78,7 @@ fun main(args: Array<String>) {
                             response.setChunked(true)
                             response.end(text)
                         }
+                        .doOnError { end("\n\nProcessing failed: ${it.getCause()}") }
                         .subscribe()
             }
             otherwise {
