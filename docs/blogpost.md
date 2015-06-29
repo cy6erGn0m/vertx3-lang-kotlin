@@ -330,7 +330,7 @@ and see the results in browser:
 See [complete example project](../src/examples/kotlin-vertx3-blog-example). You can use it as a template for your playground. Visit [Kotlin Get Started page](http://kotlinlang.org/docs/tutorials/getting-started.html) and 
 [Vert.x documentation page](http://vertx.io/docs/) to get more related information.
 
-Aeel free to contribute to the [vertx3-lang-kotlin](https://github.com/cy6erGn0m/vertx3-lang-kotlin) 
+And feel free to contribute to the [vertx3-lang-kotlin](https://github.com/cy6erGn0m/vertx3-lang-kotlin) 
 if you have something to improve.
 
 Stay tuned and be reactive!
