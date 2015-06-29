@@ -26,7 +26,7 @@ dependencies {
 
 See [Kotlin vert.x 3 Gradle project example](src/examples/kotlin-vertx3-gradle-example)
 
-### Run simple application
+### Run example application
 ```bash
 ./gradlew runExample
 ```
