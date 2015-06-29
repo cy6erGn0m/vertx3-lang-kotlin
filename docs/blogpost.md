@@ -8,7 +8,10 @@ Reactive programming is gaining popularity every day. The main reason is that tr
 Fortunately there is [vert.x](http://vertx.io/) that helps you build
  [reactive](http://www.reactivemanifesto.org/) applications. With the new
  [vertx3-lang-kotlin](https://github.com/cy6erGn0m/vertx3-lang-kotlin) and
-  [RxKotlin](https://github.com/ReactiveX/RxKotlin) it becomes even better.
+  [RxKotlin](https://github.com/ReactiveX/RxKotlin) it becomes even better. The main goal of 
+  vertx3-lang-kotlin is to priovide Kotlin language bindings and make Kotlin programming with vertx 3 
+  more natural and idiomatic. Also a set of vertx3 examples has been ported to Kotlin so you can understand 
+  how typical things could be done with Kotlin and vertx3-lang-kotlin.
 
 # Getting started
 
