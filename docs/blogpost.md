@@ -78,14 +78,24 @@ One of the solutions is to use reactive streams. Vert.x 3 has built-in [vert.x R
 eventbus.send(message)
     .flatMap { eventbus.send(another) }
     .flatMap { eventbus.send(oneMore) }
-    .doOnError { println("Message sending chain failed due to ${it.getException()}") }
+    .doOnError { println("Message sending chain failed due to ${it.getCause()}") }
     .doOnComplete { println("All messages sent") }
     .subscribe()
 ```
 
 Looks too cool, isn't it? Well, there is nothing completely perfect in real life. If you look deeper you can find some disappointing cases. For example there is no Rx adapter for file uploads handling.  Fortunately with Kotlin it is easy to extend API:
 ```kotlin
-// TODO
+fun HttpServerRequest.fileUploadsObservable(): Observable<HttpServerFileUpload> = observable { subscriber ->
+    uploadHandler { file ->
+        subscriber.onNext(file)
+    }
+    endHandler {
+        subscriber.onCompleted()
+    }
+    exceptionHandler {
+        subscriber.onError(it)
+    }
+}
 ```
 
 # Working example
@@ -206,10 +216,11 @@ After all we still haven't start page so let's add it too. Before begin let me n
  should't be done as I am going to do in this example. As it is just example I omit required configurations. In
  real application you also may need template engine. There are tons of them so just take any you like
 
-So first of all I'll put index.html page to the resources directory and load it's content like this:
+So first of all I'll put [index.html](../src/examples/kotlin-vertx3-blog-example/src/main/resources/index.html) page to the resources directory and load it's content like this:
 
 ```kotlin
-val indexPage = ClassLoader.getSystemResourceAsStream("index.html")?.readBytes() ?: throw IllegalStateException("No index.html page found")
+val indexPage = ClassLoader.getSystemResourceAsStream("index.html")?.readBytes() 
+                            ?: throw IllegalStateException("No index.html page found")
 val indexPageBuffer = bufferOf(indexPage)
 ```
 
@@ -223,5 +234,94 @@ GET("/") { request ->
 }
 ```
 
+Finally we have to introduce file upload handler at `/upload`
 
+```kotlin
+POST("/upload") { request ->
+    request.setExpectMultipart(true)
+    contentType("text/plain", "UTF-8")
+    setChunked(true)
+    val start = System.currentTimeMillis()
 
+    request.uploadHandler { file ->  // for each file upload
+        val md5sum = MessageDigest.getInstance("MD5")  // create it's own MessageDigest instance
+        val fileName = file.filename()
+        var updated = false  // flag to handle empty form upload fields
+
+        file.handler {    // for each received file block update digest
+            md5sum.update(it.getBytes())
+            updated = true
+        }
+        file.endHandler {   // when file upload completes for the file
+            val digest = md5sum.digest().toHexString()   // compute message MD5 and convert bytes to HEX string
+            if (updated || fileName.isNotBlank()) {   // we got any content or there was file name
+                write("$digest\t$fileName\n")    // send digest for uploaded file
+            }
+        }
+    }
+
+    request.endHandler {  // at end let's print some stats to the generated page and end it
+        end("\nProcessed in ${System.currentTimeMillis() - start} ms")
+    }
+}
+```
+
+Easy, isn't it? The only remaining is to handle errors. We can rewrite it using Rx reactive streaming in more functional manner.
+For better readibility let's define two data classes:
+```kotlin
+data class NamedEntry<T>(val name: String, val entry: T)
+data class DigestWithSize(val digest: MessageDigest, val size: Long)
+```
+
+And one function to update digest
+```kotlin
+fun DigestWithSize.update(bytes: ByteArray): DigestWithSize {
+    digest.update(bytes)
+    return copy(size = size + bytes.size())
+}
+```
+
+At first we need to handle uploads Rx observable:
+```kotlin
+request.fileUploadsObservable()
+        .flatMap { fileUpload ->
+            fileUpload.toObservable()
+                    .fold(DigestWithSize(MessageDigest.getInstance("MD5"), 0L)) { md, buffer -> md.update(buffer.getBytes()) }
+                    .map { NamedEntry(fileUpload.filename(), it) }
+        }
+```
+
+After that let's filter out empty fields and transform file digests to text:
+```kotlin
+.filter { it.entry.size > 0 || it.name.isNotBlank() }
+    .map { "${it.entry.digest.digest().toHexString()}\t${it.name}" }
+    .fold(StringBuilder(8192)) { sb, e -> sb.append(e).append("\n") }
+    .map { sb -> sb.append("\nDone in ${System.currentTimeMillis() - start} ms\n").toString() }
+```
+
+And finally write generated text and handle errors:
+```kotlin
+.doOnNext { text ->
+    val response = request.response()
+    response.setChunked(true)
+    response.end(text)
+}
+.doOnError { end("\n\nProcessing failed: ${it.getCause()}") }
+.subscribe()
+```
+
+That's it. Let's run it with gradle
+```bash
+gradle runExample
+```
+
+and see results in browser:
+
+![screenshot](digests.png)
+
+# What next
+
+See [complete example project](../src/examples/kotlin-vertx3-blog-example). You can use it as a template for your playground. Visit [Kotlin Get Started page](http://kotlinlang.org/docs/tutorials/getting-started.html) and 
+[Vert.x documentation page](http://vertx.io/docs/) to get more related information.
+
+Stay tuned and be reactive!
