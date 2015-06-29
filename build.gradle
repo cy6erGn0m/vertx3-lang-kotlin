@@ -1,7 +1,9 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        if (enableOssSnapshots == 'true') {
+            maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -21,7 +23,9 @@ task wrapper(type: Wrapper) {
 
 repositories {
     mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    if (enableOssSnapshots == 'true') {
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
 }
 
 sourceSets {
@@ -84,14 +88,14 @@ bintray {
     pkg {
         repo = 'maven'
         name = 'vertx3-lang-kotlin'
-        user = bintray_user
-        key = bintray_apiKey
+        user = hasProperty("bintray_user") ? bintray_user : null
+        key = hasProperty("bintray_apiKey") ? bintray_apiKey : null
 
         publish = true
         publications = ['mavenJava']
 
         version {
-            name = project.version.toString()
+            name = project.version
 
         }
     }
