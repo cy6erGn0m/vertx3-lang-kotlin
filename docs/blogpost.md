@@ -12,7 +12,84 @@ Fortunately there is [vert.x](http://vertx.io/) that help you to build
 
 # Get started
 
-Before do something let's start with some definitions
+With vertx you can build your application from small reactive event-driven componets. There are many available [components](http://vertx.io/docs/) that cover many aspects of modern application development. As far as Kotlin has [SAM conversion feature](http://kotlinlang.org/docs/reference/java-interop.html#sam-conversions) you can easily assign asynchronous event handlers with lambdas 
+
+```kotlin
+eventbus.send(message) { result ->
+    println("Sent or failed")
+}
+```
+
+Compare to the same in Java
+```java
+// Java
+eventbus.send(message, new Handler() {
+    @Override
+    public void handle(AsyncResult<Message> result) {
+        System.out.println("Send or failed")
+    }
+})
+```
+
+With Kotlin when statement you can make code even better if you need error handling (generally you do)
+
+```kotlin
+import io.vertx.lang.kotlin.*
+// .....
+eventbus.send(message) { result ->
+    when (result) {
+        is AsyncResultSuccess -> println("Sent")
+        is AsyncResultFailed -> println("Failed due to ${result.error}")
+    }
+}
+```
+
+Unfortunately with this approach it is easy to reach so called [callback hell](http://callbackhell.com/):
+
+```kotlin
+// never do like this
+eventbus.send(message) { result ->
+    when (result) {
+        is AsyncResultSuccess -> {
+            eventbus.send(another) { result ->
+                when (result) {
+                    is AsyncResultSuccess -> {
+                        eventbus.send(oneMore) { result ->
+                            when (result) {
+                                is AsyncResultSuccess -> {
+                                    ....
+                                }
+                                is AsyncResultFailed -> println("Failed due to ${result.error}")
+                            }
+                        }
+                    }
+                    is AsyncResultFailed -> println("Failed due to ${result.error}")
+                } 
+            }
+        }
+        is AsyncResultFailed -> println("Failed due to ${result.error}")
+    }
+}
+```
+
+One of the solutions is to use reactive streams. Vert.x 3 has built-in [vert.x RxJava support](https://github.com/vert-x3/vertx-rx) so with RxKotlin you can make asynchronous chains look much better
+
+```kotlin
+eventbus.send(message)
+    .flatMap { eventbus.send(another) }
+    .flatMap { eventbus.send(oneMore) }
+    .doOnError { println("Message sending chain failed due to ${it.getException()}") }
+    .doOnComplete { println("All messages sent") }
+    .subscribe()
+```
+
+Looks too cool, isn't it? Well, there is nothing completely perfect in real life. If you look deeper you can find some disappointing cases. For example there is no Rx adapter for file uploads handling.  Fortunately with Kotlin it is easy to extend API:
+```kotlin
+// TODO
+```
+
+# Working example
+After all we can proceed to some simple example to demonstrate something working. Let it be small web app that calculates md5 hashes for files that user can upload using web form. 
 
 First of all lets start with empty HTTP server
 
