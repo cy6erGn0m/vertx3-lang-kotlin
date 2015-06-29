@@ -37,7 +37,7 @@ eventbus.send(message) { result ->
 }
 ```
 
-Unfortunately with this approach it is easy to reach the so-called [callback hell](http://callbackhell.com/):
+Looks clear. Unfortunately with this approach it is easy to reach the so-called [callback hell](http://callbackhell.com/):
 
 ```kotlin
 // never do like this
