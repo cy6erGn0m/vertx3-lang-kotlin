@@ -5,7 +5,7 @@ import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.kotlin.lang.*
 
-fun HttpServerRequest.withEtagCustom(mapper: (Any?) -> String, vararg items: Any?, block: HttpServerResponse.() -> Unit) {
+public fun HttpServerRequest.withEtagCustom(mapper: (Any?) -> String, vararg items: Any?, block: HttpServerResponse.() -> Unit) {
     val response = response()
 
     val givenNoneMatchEtags = headers().getAll("If-None-Match").flatMap(String::parseMatchTag).toSet()
@@ -26,10 +26,10 @@ fun HttpServerRequest.withEtagCustom(mapper: (Any?) -> String, vararg items: Any
     response.block()
 }
 
-fun HttpServerRequest.withHashEtag(vararg items: Any?, block: HttpServerResponse.() -> Unit) =
+public fun HttpServerRequest.withHashEtag(vararg items: Any?, block: HttpServerResponse.() -> Unit): Unit =
     withEtagCustom({ it.etag().toHexString() }, *items, block = block)
 
-fun HttpServerRequest.withStringifiedEtag(vararg items: Any?, block: HttpServerResponse.() -> Unit) =
+public fun HttpServerRequest.withStringifiedEtag(vararg items: Any?, block: HttpServerResponse.() -> Unit): Unit =
     withEtagCustom({ it.toString() }, *items, block = block)
 
 private fun Int.toHexString() = Integer.toHexString(this).padStart(8, '0')
