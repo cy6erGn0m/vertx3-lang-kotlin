@@ -3,7 +3,7 @@ package io.vertx.kotlin.lang.http
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
-import io.vertx.kotlin.lang.setStatus
+import io.vertx.kotlin.lang.*
 
 fun HttpServerRequest.withEtagCustom(mapper: (Any?) -> String, vararg items: Any?, block: HttpServerResponse.() -> Unit) {
     val response = response()
@@ -17,7 +17,7 @@ fun HttpServerRequest.withEtagCustom(mapper: (Any?) -> String, vararg items: Any
         return
     }
     if (givenMatchEtags.isNotEmpty() && currentEtag !in givenMatchEtags && "*" !in givenMatchEtags) {
-        response.setStatus(HttpResponseStatus.PRECONDITION_FAILED, "Got etag ${currentEtag}")
+        response.setStatus(HttpResponseStatus.PRECONDITION_FAILED, "Got etag $currentEtag")
         return
     }
 
