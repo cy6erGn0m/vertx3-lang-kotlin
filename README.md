@@ -3,7 +3,7 @@
 This module provides [Kotlin](http://kotlinlang.org) language bindings including DSL and extension functions 
 for [vert.x 3](http://vertx.io/) and provides better Kotlin programming experience
 
-# Get started (Gradle)
+# Getting started (Gradle)
 
 Please refer to [Kotlin Using Gradle](http://kotlinlang.org/docs/reference/using-gradle.html) for Kotlin Gradle
 configuration before.
@@ -23,6 +23,33 @@ dependencies {
 ```
 
 See [Kotlin vert.x 3 Gradle project example](src/examples/kotlin-vertx3-gradle-example)
+
+# Getting started (Maven)
+
+Please refer to [Kotlin Using Maven](http://kotlinlang.org/docs/reference/using-maven.html) for Kotlin Maven
+configuration before setup vertx3-lang-kotlin.
+
+Once you get it well configured you can proceed.
+
+First of all you need additional repository added:
+
+```xml
+<repository>
+    <id>bintray-cy</id>
+    <name>bintray-cy</name>
+    <url>http://dl.bintray.com/cy6ergn0m/maven</url>
+</repository>
+```
+
+After that you can add dependency
+
+```xml
+<dependency>
+    <groupId>org.jetbrains.kotlinx</groupId>
+    <artifactId>vertx3-lang-kotlin</artifactId>
+    <version>[0.0.4,0.1.0)</version>
+</dependency>
+```
 
 ### Run example application
 ```bash
