@@ -179,7 +179,11 @@ In this example we have ETag based on cart content so if user has no any changes
 
 Both on-disk caching and ETag configured properly may significantly reduce web server performance
 
-> :red_circle: Notice that on-disk cache has no invalidation rules yet
+#### On-disk invalidation
+
+You can optionally provide your invalidation strategy by passing predicate function: this function will be called for
+ each request and receive cache file name (you can use it e.g. to check file modification date or exam it's content) and
+ two lambdas `onValid` and `onInvalid`: you must to call one of them according to your decision.
 
 ### More examples
 See [more examples](src/examples/kotlin). Some of them just copied from original examples at vert.x repo.
