@@ -21,14 +21,19 @@ import kotlin.concurrent.name
 class Cache(val vertx: Vertx, val cacheDirLocation: String)
 
 public fun HttpServerRequest.withStringifiedCache(cache: Cache, vararg items: Any?, block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
-    withCache(cache, { it?.toStringEx() ?: "null" }, *items, block = block)
+    withCache(cache, { it?.toStringEx() ?: "null" }, *items, predicate = ::predicateAlwaysTrue, block = block)
 }
 
 public fun HttpServerRequest.withHashedCache(cache: Cache, vararg items: Any?, block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
-    withCache(cache, { it?.hashCodeEx()?.toHexString() ?: "0" }, *items, block = block)
+    withCache(cache, { it?.hashCodeEx()?.toHexString() ?: "0" }, *items, predicate = ::predicateAlwaysTrue, block = block)
 }
 
-public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, vararg items: Any?, block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
+public fun HttpServerRequest.withCache(cache: Cache,
+                                       mapper: (Any?) -> String,
+                                       vararg items: Any?,
+                                       predicate: (file: String, onValid: () -> Unit, onInvalid: () -> Unit) -> Unit = ::predicateAlwaysTrue,
+                                       block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
+
     val cacheKey = items.map(mapper).joinToString("")
     val cacheFileLocation = "${cache.cacheDirLocation}/$cacheKey.cache"
     val tempFileLocation = cacheFileLocation + ".${System.currentTimeMillis()}.${Thread.currentThread().getId()}.tmp"
@@ -36,20 +41,27 @@ public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, v
     cache.vertx.fileSystem().mkdirs(cache.cacheDirLocation) {
         cache.vertx.fileSystem().open(cacheFileLocation, OpenOptions().setRead(true).setCreate(false)) { existingFileOrFail ->
             if (existingFileOrFail.succeeded()) {
-                val existingFile = existingFileOrFail.result()!!
+                predicate(cacheFileLocation, {  // valid
+                    val existingFile = existingFileOrFail.result()!!
 
-                existingFile.endHandler {
-                    response().endIfNotYet()
-                    existingFile.close()
-                }
-                existingFile.exceptionHandler {
-                    LoggerFactory.getLogger("io.vertx.kotlin.lang.http").error("File read failed", it)
+                    existingFile.endHandler {
+                        response().endIfNotYet()
+                        existingFile.close()
+                    }
+                    existingFile.exceptionHandler {
+                        LoggerFactory.getLogger("io.vertx.kotlin.lang.http").error("File read failed", it)
 
-                    response().endIfNotYet()
-                    existingFile.close()
-                }
+                        response().endIfNotYet()
+                        existingFile.close()
+                    }
 
-                existingFile.startPumpTo(response())
+                    existingFile.startPumpTo(response())
+                }, {   // invalidate
+                    cache.vertx.fileSystem().delete(cacheFileLocation) {
+                        // retry
+                        withCache(cache, mapper, predicate, *items, block = block)
+                    }
+                })
             } else {
                 cache.vertx.fileSystem().open(tempFileLocation, OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true)) { newFileOrFail ->
                     if (newFileOrFail.succeeded()) {
@@ -58,7 +70,7 @@ public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, v
                         newFile.block {
                             newFile.close {
                                 cache.vertx.fileSystem().move(tempFileLocation, cacheFileLocation) {
-                                    withCache(cache, mapper, *items, block = block)
+                                    withCache(cache, mapper, *items, predicate = ::predicateAlwaysTrue, block = block) // ::predicateAlwaysTrue here to avoid possible infinite loop
                                 }
                             }
                         }
@@ -73,6 +85,11 @@ public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, v
         }
 
     }
+}
+
+@suppress("UNUSED_PARAMETER")
+private fun predicateAlwaysTrue(file: String, onValid: () -> Unit, onInvalid: () -> Unit) {
+    onValid()
 }
 
 private fun Any.toStringEx() = when (this) {
