@@ -10,6 +10,7 @@ import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.core.streams.WriteStream
 import io.vertx.kotlin.lang.AsyncSuccessResult
+import io.vertx.kotlin.lang.endIfNotYet
 import io.vertx.kotlin.lang.startPumpTo
 import io.vertx.kotlin.lang.toAsyncResultK
 import java.util.*
@@ -19,15 +20,15 @@ import kotlin.concurrent.name
 
 class Cache(val vertx: Vertx, val cacheDirLocation: String)
 
-public fun HttpServerRequest.withStringifiedCache(cache: Cache, vararg items: Any?, block: WriteStream<Buffer>.() -> Unit) {
-    withCache(cache, {it.toString()}, *items, block = block)
+public fun HttpServerRequest.withStringifiedCache(cache: Cache, vararg items: Any?, block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
+    withCache(cache, { it?.toStringEx() ?: "null" }, *items, block = block)
 }
 
-public fun HttpServerRequest.withHashedCache(cache: Cache, vararg items: Any?, block: WriteStream<Buffer>.() -> Unit) {
-    withCache(cache, {it?.hashCode()?.toHexString() ?: "0"}, *items, block = block)
+public fun HttpServerRequest.withHashedCache(cache: Cache, vararg items: Any?, block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
+    withCache(cache, { it?.hashCodeEx()?.toHexString() ?: "0" }, *items, block = block)
 }
 
-public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, vararg items: Any?, block: WriteStream<Buffer>.() -> Unit) {
+public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, vararg items: Any?, block: WriteStream<Buffer>.(onEnd: () -> Unit) -> Unit) {
     val cacheKey = items.map(mapper).joinToString("")
     val cacheFileLocation = "${cache.cacheDirLocation}/$cacheKey.cache"
     val tempFileLocation = cacheFileLocation + ".${System.currentTimeMillis()}.${Thread.currentThread().getId()}.tmp"
@@ -35,27 +36,26 @@ public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, v
     cache.vertx.fileSystem().mkdirs(cache.cacheDirLocation) {
         cache.vertx.fileSystem().open(cacheFileLocation, OpenOptions().setRead(true).setCreate(false)) { existingFileOrFail ->
             if (existingFileOrFail.succeeded()) {
-                // sending loop
                 val existingFile = existingFileOrFail.result()!!
-                existingFile.startPumpTo(response())
+
                 existingFile.endHandler {
-                    response().end()
+                    response().endIfNotYet()
                     existingFile.close()
                 }
                 existingFile.exceptionHandler {
                     LoggerFactory.getLogger("io.vertx.kotlin.lang.http").error("File read failed", it)
 
-                    response().end()
+                    response().endIfNotYet()
                     existingFile.close()
                 }
+
+                existingFile.startPumpTo(response())
             } else {
                 cache.vertx.fileSystem().open(tempFileLocation, OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true)) { newFileOrFail ->
                     if (newFileOrFail.succeeded()) {
                         val newFile = newFileOrFail.result()!!
 
-                        try {
-                            newFile.block()
-                        } finally {
+                        newFile.block {
                             newFile.close {
                                 cache.vertx.fileSystem().move(tempFileLocation, cacheFileLocation) {
                                     withCache(cache, mapper, *items, block = block)
@@ -64,11 +64,23 @@ public fun HttpServerRequest.withCache(cache: Cache, mapper: (Any?) -> String, v
                         }
                     } else {
                         // pass through with no cache
-                        response().block()
+                        response().block {
+                            response().endIfNotYet()
+                        }
                     }
                 }
             }
         }
 
     }
+}
+
+private fun Any.toStringEx() = when (this) {
+    is Array<*> -> Arrays.toString(this)
+    else -> toString()
+}
+
+private fun Any.hashCodeEx() = when (this) {
+    is Array<*> -> Arrays.hashCode(this)
+    else -> hashCode()
 }

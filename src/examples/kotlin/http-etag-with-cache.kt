@@ -1,13 +1,10 @@
 package etagWithCache
 
 import io.vertx.core.AbstractVerticle
-import io.vertx.kotlin.lang.DefaultVertx
-import io.vertx.kotlin.lang.contentType
+import io.vertx.kotlin.lang.*
 import io.vertx.kotlin.lang.http.*
-import io.vertx.kotlin.lang.httpServer
 import io.vertx.kotlin.lang.json.array_
 import io.vertx.kotlin.lang.json.object_
-import io.vertx.kotlin.lang.replyJson
 
 fun main(args: Array<String>) {
     DefaultVertx {
@@ -17,17 +14,20 @@ fun main(args: Array<String>) {
             contentType("application/json")
             setChunked(true)
 
-            request.withHashEtag(request.params()) {
-                request.withHashedCache(cache, request.params()) {
-                    Thread.sleep(10000)
-                    replyJson {
-                        object_(
-                                "a" to 1,
-                                "b" to array_("x", "y", "z"),
-                                "params" to array_(request.params())
-                        )
+            val params = request.params().toList().groupBy { it.key }.mapValues { it.value.map { it.value } }
+
+            request.withHashEtag(params) {
+                request.withHashedCache(cache, params) { end ->
+                    setTimer(2000L) {
+                        writeJson {
+                            object_(
+                                    "a" to 1,
+                                    "b" to array_("x", "y", "z"),
+                                    "params" to array_(request.params())
+                            )
+                        }
+                        end()
                     }
-                    end()
                 }
             }
         }

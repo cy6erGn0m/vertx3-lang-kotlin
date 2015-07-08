@@ -14,10 +14,12 @@ public fun HttpServerRequest.withEtagCustom(mapper: (Any?) -> String, vararg ite
 
     if (currentEtag in givenNoneMatchEtags && "*" !in givenNoneMatchEtags) {
         response.setStatus(HttpResponseStatus.NOT_MODIFIED, "Not modified for etag")
+        response.end()
         return
     }
     if (givenMatchEtags.isNotEmpty() && currentEtag !in givenMatchEtags && "*" !in givenMatchEtags) {
         response.setStatus(HttpResponseStatus.PRECONDITION_FAILED, "Got etag $currentEtag")
+        response.end()
         return
     }
 
@@ -30,8 +32,8 @@ public fun HttpServerRequest.withHashEtag(vararg items: Any?, block: HttpServerR
     withEtagCustom({ it.etag().toHexString() }, *items, block = block)
 
 public fun HttpServerRequest.withStringifiedEtag(vararg items: Any?, block: HttpServerResponse.() -> Unit): Unit =
-    withEtagCustom({ it.toString() }, *items, block = block)
+    withEtagCustom({ it?.toStringEx() ?: "null" }, *items, block = block)
 
 private fun Int.toHexString() = Integer.toHexString(this).padStart(8, '0')
-private fun Any?.etag() = this?.hashCode() ?: 0
+private fun Any?.etag() = this?.hashCodeEx() ?: 0
 private fun String.parseMatchTag() = split("\\s*,\\s*".toRegex()).map { it.removePrefix("W/") }.filter { it.isNotEmpty() }

@@ -6,6 +6,7 @@ import io.vertx.core.net.NetSocket
 import io.vertx.core.streams.Pump
 import io.vertx.core.streams.ReadStream
 import io.vertx.core.streams.WriteStream
+import io.vertx.kotlin.lang.json.Json
 
 public fun <T> ReadStream<T>.startPumpTo(out: WriteStream<T>): Pump =
         Pump.pump(this, out).start()
@@ -30,4 +31,12 @@ public inline fun NetSocket.use(block: NetSocket.() -> Unit) {
     } finally {
         close()
     }
+}
+
+public fun <W : WriteStream<Buffer>> W.writeJson(block: Json.() -> Any): W {
+    writeBuffer {
+        appendJson(block)
+    }
+
+    return this
 }
