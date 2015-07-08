@@ -141,7 +141,7 @@ fun main(args: Array<String>) {
                                     "params" to array_(request.params())
                             )
                         }
-                        end()
+                        end()  // NOTE you MUST call it at end of with*Cache lambda
                     }
                 }
             }
@@ -149,6 +149,37 @@ fun main(args: Array<String>) {
     }
 }
 ```
+
+Cache page to be updated only once per minute
+
+```kotlin
+    request.withHashedCache(cache, new Date().getMinutes()) { end ->
+        writeJson {
+            object_(
+                    "a" to 1,
+                    "b" to array_("x", "y", "z")
+            )
+        }
+        end()
+    }
+```
+
+Shopping cart ETags example:
+
+```kotlin
+val cart = session.getCart()
+
+request.withHashedEtag(cart.items.map { it.id to it.amount }) {
+  // generate page
+}
+```
+
+In this example we have ETag based on cart content so if user has no any changes in the cart then the page will not be
+ generated if user already have valid version in cart's page.
+
+Both on-disk caching and ETag configured properly may significantly reduce web server performance
+
+> :red_circle: Notice that on-disk cache not have no invalidation rules yet
 
 ### More examples
 See [more examples](src/examples/kotlin). Some of them just copied from original examples at vert.x repo.
