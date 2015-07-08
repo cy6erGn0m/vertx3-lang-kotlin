@@ -88,15 +88,14 @@ bintray {
     pkg {
         repo = 'maven'
         name = 'vertx3-lang-kotlin'
-        user = hasProperty("bintray_user") ? bintray_user : null
-        key = hasProperty("bintray_apiKey") ? bintray_apiKey : null
+        user = project.hasProperty("bintray_user") ? project.bintray_user : null
+        key = project.hasProperty("bintray_apiKey") ? project.bintray_apiKey : null
 
         publish = true
         publications = ['mavenJava']
 
         version {
             name = project.version
-
         }
     }
 }

@@ -1,10 +1,8 @@
 package etagWithCache
 
-import io.vertx.core.AbstractVerticle
 import io.vertx.kotlin.lang.*
 import io.vertx.kotlin.lang.http.*
-import io.vertx.kotlin.lang.json.array_
-import io.vertx.kotlin.lang.json.object_
+import io.vertx.kotlin.lang.json.*
 
 fun main(args: Array<String>) {
     DefaultVertx {
