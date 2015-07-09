@@ -10,7 +10,7 @@ fun sender(vertx: Vertx) {
     vertx.setPeriodic(1000) {
         bus.send<String>("ping-address", "ping") { reply ->
             when (reply) {
-                is AsyncSuccessResult -> println("Received reply: ${reply}")
+                is AsyncSuccessResult -> println("Received reply: $reply")
                 else -> println("No reply")
             }
         }

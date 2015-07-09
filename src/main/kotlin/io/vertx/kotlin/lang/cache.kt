@@ -9,10 +9,7 @@ import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.core.streams.WriteStream
-import io.vertx.kotlin.lang.AsyncSuccessResult
-import io.vertx.kotlin.lang.endIfNotYet
-import io.vertx.kotlin.lang.startPumpTo
-import io.vertx.kotlin.lang.toAsyncResultK
+import io.vertx.kotlin.lang.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,45 +36,47 @@ public fun HttpServerRequest.withCache(cache: Cache,
     val tempFileLocation = cacheFileLocation + ".${System.currentTimeMillis()}.${Thread.currentThread().getId()}.tmp"
 
     cache.vertx.fileSystem().mkdirs(cache.cacheDirLocation) {
-        cache.vertx.fileSystem().open(cacheFileLocation, OpenOptions().setRead(true).setCreate(false)) { existingFileOrFail ->
-            if (existingFileOrFail.succeeded()) {
-                predicate(cacheFileLocation, {  // valid
-                    val existingFile = existingFileOrFail.result()!!
+        cache.vertx.fileSystem().open(cacheFileLocation, OpenOptions().setRead(true).setCreate(false)) { existingFile ->
+            when (existingFile) {
+                is AsyncSuccessResult -> {
+                    predicate(cacheFileLocation, { // valid
+                        existingFile.result.endHandler {
+                            response().endIfNotYet()
+                            existingFile.result.close()
+                        }
+                        existingFile.result.exceptionHandler {
+                            LoggerFactory.getLogger("io.vertx.kotlin.lang.http").error("File read failed", it)
 
-                    existingFile.endHandler {
-                        response().endIfNotYet()
-                        existingFile.close()
-                    }
-                    existingFile.exceptionHandler {
-                        LoggerFactory.getLogger("io.vertx.kotlin.lang.http").error("File read failed", it)
+                            response().endIfNotYet()
+                            existingFile.result.close()
+                        }
 
-                        response().endIfNotYet()
-                        existingFile.close()
-                    }
+                        existingFile.result.startPumpTo(response())
+                    }, { // invalidate
+                        cache.vertx.fileSystem().delete(cacheFileLocation) {
+                            // retry
+                            withCache(cache, mapper, predicate, *items, block = block)
+                        }
+                    })
+                }
+                else -> cache.vertx.fileSystem().open(tempFileLocation, OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true)) { newFileOrFail ->
+                    when (newFileOrFail) {
+                        is AsyncSuccessResult -> {
+                            val newFile = newFileOrFail.result
 
-                    existingFile.startPumpTo(response())
-                }, {   // invalidate
-                    cache.vertx.fileSystem().delete(cacheFileLocation) {
-                        // retry
-                        withCache(cache, mapper, predicate, *items, block = block)
-                    }
-                })
-            } else {
-                cache.vertx.fileSystem().open(tempFileLocation, OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true)) { newFileOrFail ->
-                    if (newFileOrFail.succeeded()) {
-                        val newFile = newFileOrFail.result()!!
-
-                        newFile.block {
-                            newFile.close {
-                                cache.vertx.fileSystem().move(tempFileLocation, cacheFileLocation) {
-                                    withCache(cache, mapper, *items, predicate = ::predicateAlwaysTrue, block = block) // ::predicateAlwaysTrue here to avoid possible infinite loop
+                            newFile.block {
+                                newFile.close {
+                                    cache.vertx.fileSystem().move(tempFileLocation, cacheFileLocation) {
+                                        withCache(cache, mapper, *items, predicate = ::predicateAlwaysTrue, block = block) // ::predicateAlwaysTrue here to avoid possible infinite loop
+                                    }
                                 }
                             }
                         }
-                    } else {
-                        // pass through with no cache
-                        response().block {
-                            response().endIfNotYet()
+                        else -> {
+                            // pass through with no cache
+                            response().block {
+                                response().endIfNotYet()
+                            }
                         }
                     }
                 }
