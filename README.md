@@ -150,14 +150,14 @@ fun main(args: Array<String>) {
 }
 ```
 
-Cache page to be updated only once per minute
+Cached page to be updated only when something changes
 
 ```kotlin
-    request.withHashedCache(cache, new Date().getMinutes()) { end ->
+    request.withHashedCache(cache, blog.lastPost?.id) { end ->
         writeJson {
             object_(
-                    "a" to 1,
-                    "b" to array_("x", "y", "z")
+                    "title" to blog.displayName,
+                    "lastPostTitle" to blog.lastPost?.title
             )
         }
         end()
@@ -177,7 +177,13 @@ request.withHashedEtag(cart.items.map { it.id to it.amount }) {
 In this example we have ETag based on cart content so if user has no any changes in the cart then the page will not be
  generated if user already have valid version in cart's page.
 
-Both on-disk caching and ETag configured properly may significantly reduce web server performance
+Both on-disk caching and ETag configured properly may significantly reduce web server performance. However
+ you have to choose among ETag/Cache and think of valid keys to be used.
+ The general recommendation is to use on-disk cache for public pages (available to all users and 
+ have the same content) and etags for everything possible.
+ 
+> :red_circle: Note that on-disk cache is never purged automatically so you have to do it your own.  
+> :red_cirlce: Notice that you can't set any headers/cookies/etc in a cached lambda. If you need something special you have to specify it before withCache block
 
 #### On-disk invalidation
 
