@@ -7,8 +7,8 @@ import io.vertx.core.Handler
 import io.vertx.core.Vertx
 
 public interface AsyncResult<T>
-public class AsyncSuccessResult<T>(val result: T) : AsyncResult<T>
-public class AsyncErrorResult<T>(val error: Throwable) : AsyncResult<T>
+public class AsyncSuccessResult<T>(public val result: T) : AsyncResult<T>
+public class AsyncErrorResult<T>(public val error: Throwable) : AsyncResult<T>
 
 public inline val AsyncResult<*>.success: Boolean
     get() = this is AsyncSuccessResult
@@ -29,6 +29,22 @@ public fun <T> core.AsyncResult<T>.toAsyncResultK(): AsyncResult<T> = when {
     succeeded() -> AsyncSuccessResult(this.result())
     failed() -> AsyncErrorResult(this.cause())
     else -> AsyncErrorResult(IllegalStateException("Bad async result object ${this.javaClass.getName()}"))
+}
+
+public inline fun <F, T> AsyncResult<F>.mapIfSuccess(map: (F) -> T): AsyncResult<T> = when (this) {
+    is AsyncSuccessResult -> AsyncSuccessResult(map(this.result))
+    is AsyncErrorResult -> AsyncErrorResult<T>(this.error)
+    else -> AsyncErrorResult(IllegalStateException("Bad async result object ${this.javaClass.getName()}"))
+}
+
+public inline fun <T, R> AsyncResult<T>.ifSuccess(errorValue: R, block: (T) -> R): R = when (this) {
+    is AsyncSuccessResult -> block(this.result)
+    else -> errorValue
+}
+
+public fun <T> AsyncResult<T>.asSequence(): Sequence<T> = when (this) {
+    is AsyncSuccessResult -> sequenceOf(this.result)
+    else -> emptySequence()
 }
 
 public fun <T> Vertx.executeBlocking(blockingCodeHandler: (Future<T>) -> Unit, resultHandler: (AsyncResult<T>) -> Unit) {
