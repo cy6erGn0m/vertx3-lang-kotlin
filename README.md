@@ -183,7 +183,8 @@ Both on-disk caching and ETag configured properly may significantly reduce web s
  have the same content) and etags for everything possible.
  
 > :red_circle: Note that on-disk cache is never purged automatically so you have to do it your own.  
-> :red_cirlce: Notice that you can't set any headers/cookies/etc in a cached lambda. If you need something special you have to specify it before withCache block
+
+> :red_circle: Notice that you can't set any headers/cookies/etc in a cached lambda. If you need something special you have to specify it before withCache block
 
 #### On-disk invalidation
 
