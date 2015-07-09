@@ -4,6 +4,9 @@ import io.vertx.core
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.file.*
+import kotlinx.util.with
+
+public inline fun OpenOptions(block: OpenOptions.() -> Unit): OpenOptions = OpenOptions().with(block)
 
 public fun FileSystem.open(path: String, options: OpenOptions = OpenOptions(), handler: (AsyncResult<AsyncFile>) -> Unit) {
     open(path, options, Handler { handler(it.toAsyncResultK()) })
