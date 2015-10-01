@@ -1,7 +1,6 @@
 package io.vertx.kotlin.lang.jdbc
 
 import io.vertx.kotlin.lang.*
-import io.vertx.core
 import io.vertx.core.Handler
 import io.vertx.core.json.JsonArray
 import io.vertx.ext.jdbc.JDBCClient

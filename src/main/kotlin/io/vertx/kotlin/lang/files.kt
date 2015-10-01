@@ -1,6 +1,5 @@
 package io.vertx.kotlin.lang
 
-import io.vertx.core
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.file.*

@@ -11,7 +11,7 @@ import java.util.Date
 
 private fun Long.toHexString() = java.lang.Long.toHexString(this)
 
-@suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE")
 public inline fun HttpServerResponse.serveDirectory(request: HttpServerRequest, dir: File) {
     contentType("text/html")
     body {
@@ -60,7 +60,7 @@ private fun File.parents(): List<File> {
     var current = this
 
     do {
-        val parent = current.parent
+        val parent = current.parentFile
         if (parent == null || parent == current) {
             break
         }

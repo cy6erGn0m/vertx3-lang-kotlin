@@ -19,5 +19,5 @@ public fun Json.array_(values: List<Any?>): JsonArray = JsonArray(values)
 
 public inline fun <T> json_(block: Json.() -> T): T = Json().block()
 
-@suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST")
 public fun <T> JsonObject.get(key: String): T = getValue(key) as T

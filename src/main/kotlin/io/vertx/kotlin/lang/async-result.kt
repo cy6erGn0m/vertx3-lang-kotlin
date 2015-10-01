@@ -1,7 +1,7 @@
 package io.vertx.kotlin.lang
 
 
-import io.vertx.core
+import io.vertx.core.AsyncResult as coreAsyncResult
 import io.vertx.core.Future
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
@@ -25,16 +25,16 @@ public fun AsyncResult<*>.sendToFutureVoid(f: Future<Void>): Unit = when (this) 
     else -> f.fail(IllegalStateException("Unknown AsyncResult"))
 }
 
-public fun <T> core.AsyncResult<T>.toAsyncResultK(): AsyncResult<T> = when {
+public fun <T> coreAsyncResult<T>.toAsyncResultK(): AsyncResult<T> = when {
     succeeded() -> AsyncSuccessResult(this.result())
     failed() -> AsyncErrorResult(this.cause())
-    else -> AsyncErrorResult(IllegalStateException("Bad async result object ${this.javaClass.getName()}"))
+    else -> AsyncErrorResult(IllegalStateException("Bad async result object ${this.javaClass.name}"))
 }
 
 public inline fun <F, T> AsyncResult<F>.mapIfSuccess(map: (F) -> T): AsyncResult<T> = when (this) {
     is AsyncSuccessResult -> AsyncSuccessResult(map(this.result))
     is AsyncErrorResult -> AsyncErrorResult<T>(this.error)
-    else -> AsyncErrorResult(IllegalStateException("Bad async result object ${this.javaClass.getName()}"))
+    else -> AsyncErrorResult(IllegalStateException("Bad async result object ${this.javaClass.name}"))
 }
 
 public inline fun <T, R> AsyncResult<T>.ifSuccess(errorValue: R, block: (T) -> R): R = when (this) {

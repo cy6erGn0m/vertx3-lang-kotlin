@@ -2,7 +2,7 @@ package io.vertx.kotlin.lang
 
 
 import io.netty.handler.codec.http.HttpResponseStatus
-import io.vertx.core
+import io.vertx.core.AsyncResult as coreAsyncResult
 import io.vertx.core.Handler
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
@@ -19,36 +19,35 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import kotlin.InlineOption.ONLY_LOCAL_RETURN
 
 public fun HttpServerOptions(port: Int, host: String = NetServerOptions.DEFAULT_HOST): HttpServerOptions = HttpServerOptions().setHost(host).setPort(port)
 
-public inline fun Vertx.createHttpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.createHttpServerWithOptions(options: HttpServerOptions, crossinline handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServer(options).with { requestHandler { request -> request.response().handler(request) } }
 
-public inline fun Verticle.createHttpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.createHttpServerWithOptions(options: HttpServerOptions, crossinline handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         getVertx().createHttpServerWithOptions(options, handler)
 
-public inline fun Vertx.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, crossinline handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(HttpServerOptions(port, host), handler)
 
-public inline fun Verticle.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, crossinline handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(HttpServerOptions(port, host), handler)
 
-public inline fun Vertx.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, crossinline block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServer(port, host, block).listen()
 
-public inline fun Verticle.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.httpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, crossinline block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServer(port, host, block).listen()
 
-public inline fun Vertx.httpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Vertx.httpServerWithOptions(options: HttpServerOptions, crossinline block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(options, block).listen()
 
-public inline fun Verticle.httpServerWithOptions(options: HttpServerOptions, inlineOptions(ONLY_LOCAL_RETURN) block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
+public inline fun Verticle.httpServerWithOptions(options: HttpServerOptions, crossinline block: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(options, block).listen()
 
-public fun HttpServer.listen(listenHandler: (AsyncResult<HttpServer>) -> Unit): HttpServer = this.listen(object : Handler<core.AsyncResult<HttpServer>> {
-    override fun handle(event: core.AsyncResult<HttpServer>?) {
+public fun HttpServer.listen(listenHandler: (AsyncResult<HttpServer>) -> Unit): HttpServer = this.listen(object : Handler<coreAsyncResult<HttpServer>> {
+    override fun handle(event: coreAsyncResult<HttpServer>?) {
         listenHandler(event?.toAsyncResultK() ?: AsyncErrorResult<HttpServer>(NullPointerException("event shouldn't be null")))
     }
 })
@@ -96,9 +95,9 @@ public fun HttpServerResponse.header(headerName: CharSequence, headerValue: Numb
     return putHeader(headerName, headerValue.toString())
 }
 
-private val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
+internal val dateFormatLocal = object : ThreadLocal<SimpleDateFormat>() {
     override fun initialValue(): SimpleDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).with {
-        setTimeZone(TimeZone.getTimeZone("GMT"))
+        timeZone = TimeZone.getTimeZone("GMT")
     }
 }
 

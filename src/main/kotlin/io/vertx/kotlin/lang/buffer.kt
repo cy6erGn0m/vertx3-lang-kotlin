@@ -1,7 +1,7 @@
 package io.vertx.kotlin.lang
 
 import io.vertx.core.buffer.Buffer
-import io.vertx.core.json as vertxjson
+import io.vertx.core.json.Json as vertxJson
 import io.vertx.kotlin.lang.json.Json
 import kotlinx.util.with
 import java.nio.charset.Charset
@@ -16,4 +16,4 @@ public fun Buffer.appendCrLf(): Buffer = appendString("\r\n")
 public fun Buffer.appendLf(): Buffer = appendString("\n")
 
 public inline fun Buffer.appendJson(block: Json.() -> Any): Buffer =
-        Json().block().let { json -> vertxjson.Json.encode(json) }.let { encoded -> appendString(encoded) }
+        Json().block().let { json -> vertxJson.encode(json) }.let { encoded -> appendString(encoded) }

@@ -9,7 +9,6 @@ import kotlinx.util.with
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
-import kotlin.InlineOption.ONLY_LOCAL_RETURN
 
 public val patternCache: MutableMap<String, Pattern> = ConcurrentHashMap()
 
@@ -21,7 +20,7 @@ public class Route(request: HttpServerRequest,
     public var completed: Boolean = false
 }
 
-public inline fun Route(inlineOptions(ONLY_LOCAL_RETURN) block: Route.() -> Unit): HttpServerResponse.(HttpServerRequest) -> Unit = {
+public inline fun Route(crossinline block: Route.() -> Unit): HttpServerResponse.(HttpServerRequest) -> Unit = {
     Route(it, this).with {
         block()
         if (!completed) {
@@ -116,13 +115,13 @@ public fun String.globToPattern(): Pattern = globPattern.matcher(this).let { m -
     }.toString())
 }
 
-@suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE")
 public inline fun Route.glob(vararg globs: String): List<Pattern> =
         globs.map { glob -> patternCache.getOrPut(glob) { glob.globToPattern() } }
 
 public fun String.cutPath(basePath: String): String = if (this.endsWith("/")) substring(basePath.length(), length() - 1) else substring(basePath.length())
 
-@suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE")
 public fun Route.serve(path: String, fileSystemPath: File, directoryListingEnabled: Boolean = true) {
     handle({
         serve(request, File(fileSystemPath, it.path().cutPath(path)), fileSystemPath, directoryListingEnabled)

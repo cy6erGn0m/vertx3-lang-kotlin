@@ -1,14 +1,14 @@
 package io.vertx.kotlin.lang
 
 import io.vertx.core.*
-import io.vertx.core.json
+import io.vertx.core.json.JsonObject as vJsonObject
 import kotlinx.util.with
 
-public inline val AbstractVerticle.config: json.JsonObject
+public inline val AbstractVerticle.config: vJsonObject
     get() = config()
 
 public fun Verticle.verticle(name: String, options: DeploymentOptions = DeploymentOptions(), handler: (AsyncResult<String>) -> Unit) {
-    getVertx().deployVerticle(name, options) { result -> handler(result.toAsyncResultK()) }
+    vertx.deployVerticle(name, options) { result -> handler(result.toAsyncResultK()) }
 }
 
 public inline fun DefaultVertx(options: VertxOptions = VertxOptions(), block: Vertx.() -> Unit): Unit {

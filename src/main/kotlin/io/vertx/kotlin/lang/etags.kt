@@ -34,6 +34,6 @@ public fun HttpServerRequest.withHashEtag(vararg items: Any?, block: HttpServerR
 public fun HttpServerRequest.withStringifiedEtag(vararg items: Any?, block: HttpServerResponse.() -> Unit): Unit =
     withEtagCustom({ it?.toStringEx() ?: "null" }, *items, block = block)
 
-private fun Int.toHexString() = Integer.toHexString(this).padStart(8, '0')
+internal fun Int.toHexString() = Integer.toHexString(this).padStart(8, '0')
 private fun Any?.etag() = this?.hashCodeEx() ?: 0
 private fun String.parseMatchTag() = split("\\s*,\\s*".toRegex()).map { it.removePrefix("W/") }.filter { it.isNotEmpty() }
