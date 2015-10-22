@@ -1,12 +1,8 @@
 package core.mail
 
-import io.vertx.core.Vertx
-import io.vertx.ext.mail.MailMessage
-import io.vertx.ext.mail.MailResult
-import io.vertx.ext.mail.MailService
-import io.vertx.kotlin.lang.AsyncErrorResult
-import io.vertx.kotlin.lang.AsyncSuccessResult
-import io.vertx.kotlin.lang.sendMail
+import io.vertx.core.*
+import io.vertx.ext.mail.*
+import io.vertx.kotlin.lang.*
 
 fun sendMe(vertx: Vertx) {
     val mailService = MailService.createEventBusProxy(vertx, "test.mail")

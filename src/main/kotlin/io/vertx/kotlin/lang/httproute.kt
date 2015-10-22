@@ -84,7 +84,7 @@ public inline fun Route.otherwise(block: HttpServerResponse.(HttpServerRequest) 
 private val globPattern = Pattern.compile("""\?|\*+|(\[[^\]]+\])""")
 private fun String.smartQuote() = if (isEmpty()) "" else Pattern.quote(this)
 public fun String.globToPattern(): Pattern = globPattern.matcher(this).let { m ->
-    Pattern.compile(StringBuilder {
+    Pattern.compile(StringBuilder().apply {
         if (this@globToPattern.startsWith("/")) {
             append("^")
         }
@@ -107,7 +107,7 @@ public fun String.globToPattern(): Pattern = globPattern.matcher(this).let { m -
             idx = m.end()
         }
 
-        if (idx < this@globToPattern.length()) {
+        if (idx < this@globToPattern.length) {
             append(this@globToPattern.substring(idx).smartQuote())
         }
 
@@ -119,7 +119,7 @@ public fun String.globToPattern(): Pattern = globPattern.matcher(this).let { m -
 public inline fun Route.glob(vararg globs: String): List<Pattern> =
         globs.map { glob -> patternCache.getOrPut(glob) { glob.globToPattern() } }
 
-public fun String.cutPath(basePath: String): String = if (this.endsWith("/")) substring(basePath.length(), length() - 1) else substring(basePath.length())
+public fun String.cutPath(basePath: String): String = if (this.endsWith("/")) substring(basePath.length, length - 1) else substring(basePath.length)
 
 @Suppress("NOTHING_TO_INLINE")
 public fun Route.serve(path: String, fileSystemPath: File, directoryListingEnabled: Boolean = true) {

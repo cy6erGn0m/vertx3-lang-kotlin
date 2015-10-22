@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
     DefaultVertx {
         createHttpClient().get("api.icndb.com", "/jokes/random") { response ->
             response.bodyHandler {
-                val node = ObjectMapper().readValue(it.getBytes(), javaClass<JsonNode>())
+                val node = ObjectMapper().readValue(it.bytes, JsonNode::class.java)
                 val joke = node.get("value").get("joke").asText()
                 println(joke)
                 this.close()

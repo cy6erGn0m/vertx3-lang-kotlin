@@ -1,12 +1,8 @@
 package examples
 
-import io.vertx.core.AbstractVerticle
-import io.vertx.core.eventbus.EventBus
+import io.vertx.core.*
 import io.vertx.kotlin.lang.*
-import io.vertx.kotlin.lang.json.JsonArray
-import io.vertx.kotlin.lang.json.JsonObject
-import io.vertx.kotlin.lang.json.array_
-import io.vertx.kotlin.lang.json.object_
+import io.vertx.kotlin.lang.json.*
 
 class NetSocketsEcho : AbstractVerticle() {
     override fun start() {

@@ -26,7 +26,7 @@ public inline fun Vertx.createHttpServerWithOptions(options: HttpServerOptions, 
         createHttpServer(options).with { requestHandler { request -> request.response().handler(request) } }
 
 public inline fun Verticle.createHttpServerWithOptions(options: HttpServerOptions, crossinline handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
-        getVertx().createHttpServerWithOptions(options, handler)
+        vertx.createHttpServerWithOptions(options, handler)
 
 public inline fun Vertx.createHttpServer(port: Int, host: String = NetServerOptions.DEFAULT_HOST, crossinline handler: HttpServerResponse.(HttpServerRequest) -> Unit): HttpServer =
         createHttpServerWithOptions(HttpServerOptions(port, host), handler)
@@ -120,7 +120,7 @@ public fun HttpServerResponse.setStatus(status: HttpResponseStatus, message: Str
 public fun HttpServerResponse.setStatusCode(status: HttpResponseStatus): HttpServerResponse = setStatusCode(status.code())
 
 
-public inline var HttpServerResponse.contentLength: Long
+public var HttpServerResponse.contentLength: Long
     get() = headers().getAll("Content-Length").distinct().single().toLong()
     set(newValue) {
         setChunked(false)

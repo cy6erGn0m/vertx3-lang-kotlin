@@ -32,8 +32,8 @@ public inline fun HttpServerResponse.serveDirectory(request: HttpServerRequest, 
                 appendString("<p>")
 
                 appendString(when {
-                    it.isDirectory() -> "[D]"
-                    it.isFile() -> "[F]"
+                    it.isDirectory -> "[D]"
+                    it.isFile -> "[F]"
                     else -> "[?]"
                 })
 
@@ -42,9 +42,9 @@ public inline fun HttpServerResponse.serveDirectory(request: HttpServerRequest, 
                 if (!request.path().endsWith("/")) {
                     appendString("/")
                 }
-                appendString(it.getName()) // TODO better resolve
+                appendString(it.name) // TODO better resolve
                 appendString("\">")
-                appendString(it.getName())
+                appendString(it.name)
                 appendString("</a>")
 
                 appendString("</p>\n")
@@ -90,7 +90,7 @@ public fun HttpServerResponse.serve(request: HttpServerRequest, f: File, mostTop
         return
     }
 
-    if ((f.isFile() && !f.canRead()) || mostTop !in f.parents()) {
+    if ((f.isFile && !f.canRead()) || mostTop !in f.parents()) {
         setStatus(HttpResponseStatus.FORBIDDEN, "Access denied")
         body {
             write("<html><body><h1>The requested file couldn't be read</h1></body></html>")
@@ -98,7 +98,7 @@ public fun HttpServerResponse.serve(request: HttpServerRequest, f: File, mostTop
         return
     }
 
-    if (f.isDirectory()) {
+    if (f.isDirectory) {
         if (directoryListingEnabled) {
             serveDirectory(request, f)
         } else {
@@ -144,7 +144,7 @@ public fun HttpServerResponse.serve(request: HttpServerRequest, f: File, mostTop
     header(HttpHeaders.ETAG, etag)
 
     if (request.method() == HttpMethod.GET) {
-        sendFile(f.getAbsolutePath())
+        sendFile(f.absolutePath)
     } else {
         end()
     }

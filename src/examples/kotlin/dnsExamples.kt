@@ -1,11 +1,8 @@
 package examples
 
+import io.vertx.core.*
+import io.vertx.core.dns.*
 import io.vertx.kotlin.lang.*
-import io.vertx.core.Vertx
-import io.vertx.core.dns.DnsClient
-import io.vertx.core.dns.MxRecord
-import io.vertx.core.dns.SrvRecord
-import io.vertx.kotlin.lang.AsyncSuccessResult
 
 /**
  * @author [Julien Viet](mailto:julien@julienviet.com)

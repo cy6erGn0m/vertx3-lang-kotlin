@@ -1,8 +1,7 @@
 package examples.route
 
 import io.vertx.kotlin.lang.*
-import kotlinx.util.with
-import java.io.File
+import java.io.*
 
 fun main(args: Array<String>) {
     DefaultVertx {
@@ -18,7 +17,7 @@ fun main(args: Array<String>) {
                     write("""<!doctype html>
                     <html>
                         <head>
-                            <title>${"[^/]+$".toRegex().match(request.path())?.value}</title>
+                            <title>${"[^/]+$".toRegex().find(request.path())?.value}</title>
                         </head>
                         <body>
                             <h1>Dynamic page</h1>

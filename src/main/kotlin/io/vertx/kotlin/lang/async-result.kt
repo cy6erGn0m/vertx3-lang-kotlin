@@ -10,7 +10,7 @@ public interface AsyncResult<T>
 public class AsyncSuccessResult<T>(public val result: T) : AsyncResult<T>
 public class AsyncErrorResult<T>(public val error: Throwable) : AsyncResult<T>
 
-public inline val AsyncResult<*>.success: Boolean
+public val AsyncResult<*>.success: Boolean
     get() = this is AsyncSuccessResult
 
 public fun <T> AsyncResult<T>.sendToFuture(f: Future<T>): Unit = when (this) {

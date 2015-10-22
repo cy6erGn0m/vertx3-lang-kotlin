@@ -8,7 +8,7 @@ public fun JsonObject(fields: Iterable<Pair<String, Any?>>): JsonObject = JsonOb
 public fun JsonArray(vararg values: Any?): JsonArray = JsonArray(listOf(*values))
 public fun JsonArray(values: Iterable<Any?>): JsonArray = JsonArray(listOf(*values.toList().toTypedArray()))
 
-public class Json
+public object Json
 
 public fun Json.object_(vararg fields: Pair<String, Any?>): JsonObject = JsonObject(*fields)
 public fun Json.object_(fields: Iterable<Pair<String, Any?>>): JsonObject = JsonObject(*fields.toList().toTypedArray())
@@ -17,7 +17,7 @@ public fun Json.array_(vararg values: Any?): JsonArray = JsonArray(*values)
 public fun Json.array_(values: Iterable<Any?>): JsonArray = JsonArray(*values.toList().toTypedArray())
 public fun Json.array_(values: List<Any?>): JsonArray = JsonArray(values)
 
-public inline fun <T> json_(block: Json.() -> T): T = Json().block()
+public inline fun <T> json_(block: Json.() -> T): T = Json.block()
 
 @Suppress("UNCHECKED_CAST")
 public fun <T> JsonObject.get(key: String): T = getValue(key) as T

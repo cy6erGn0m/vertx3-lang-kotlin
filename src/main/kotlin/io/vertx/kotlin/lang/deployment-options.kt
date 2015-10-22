@@ -11,7 +11,7 @@ public inline fun DeploymentOptions.withConfig(body: Json.() -> JsonObject): Dep
         with(this) { setConfig(Json().body()) }
 
 public fun Vertx.deploy(verticle: Verticle, handler: (AsyncResult<String>) -> Unit) {
-    deployVerticle(verticle, Handler { handler(it.toAsyncResultK()) })
+    deployVerticle(verticle, { handler(it.toAsyncResultK()) })
 }
 
 public fun Vertx.deployVerticle(name: String, handler: (AsyncResult<String>) -> Unit) {

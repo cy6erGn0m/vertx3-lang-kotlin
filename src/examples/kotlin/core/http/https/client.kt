@@ -14,7 +14,7 @@ fun client(vertx: Vertx) {
         println("Got response with status ${response.statusCode()}")
 
         response.bodyHandler { bytes ->
-            System.out.write(bytes.getBytes())
+            System.out.write(bytes.bytes)
         }
     }
 }

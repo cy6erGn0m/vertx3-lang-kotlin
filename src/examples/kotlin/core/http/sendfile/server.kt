@@ -11,7 +11,7 @@ fun server(vertx: Vertx) {
 
             if (file.exists()) {
                 contentType("text/html")
-                sendFile(file.getPath())
+                sendFile(file.path)
             } else {
                 setStatusCode(404)
                 end()
