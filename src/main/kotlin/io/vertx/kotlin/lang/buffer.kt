@@ -16,4 +16,4 @@ public fun Buffer.appendCrLf(): Buffer = appendString("\r\n")
 public fun Buffer.appendLf(): Buffer = appendString("\n")
 
 public inline fun Buffer.appendJson(block: Json.() -> Any): Buffer =
-        Json().block().let { json -> vertxJson.encode(json) }.let { encoded -> appendString(encoded) }
+        Json.block().let { json -> vertxJson.encode(json) }.let { encoded -> appendString(encoded) }

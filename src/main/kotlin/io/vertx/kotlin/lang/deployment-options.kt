@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.lang.json.Json
 
 public inline fun DeploymentOptions.withConfig(body: Json.() -> JsonObject): DeploymentOptions =
-        with(this) { setConfig(Json().body()) }
+        with(this) { setConfig(Json.body()) }
 
 public fun Vertx.deploy(verticle: Verticle, handler: (AsyncResult<String>) -> Unit) {
     deployVerticle(verticle, { handler(it.toAsyncResultK()) })

@@ -4,7 +4,7 @@ import io.vertx.core.*
 import io.vertx.core.json.JsonObject as vJsonObject
 import kotlinx.util.with
 
-public inline val AbstractVerticle.config: vJsonObject
+public val AbstractVerticle.config: vJsonObject
     get() = config()
 
 public fun Verticle.verticle(name: String, options: DeploymentOptions = DeploymentOptions(), handler: (AsyncResult<String>) -> Unit) {
