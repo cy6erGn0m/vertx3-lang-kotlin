@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
         if (enableOssSnapshots == 'true') {
             maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         }
@@ -36,6 +37,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     testCompile 'junit:junit:4.+'
     testCompile "org.mockito:mockito-core:1.+"
+
+     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-jdbc-client:$vertxVersion"

@@ -28,7 +28,7 @@ public fun FileSystem.props(path: String, handler: (AsyncResult<FileProps>) -> U
 }
 
 public fun FileSystem.size(path: String, handler: (AsyncResult<Long>) -> Unit) {
-    props(path) {
+    props(path) { it: AsyncResult<FileProps> ->
         handler(it.mapIfSuccess { it.size() })
     }
 }

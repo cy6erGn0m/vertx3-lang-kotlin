@@ -2,7 +2,7 @@ package io.vertx.kotlin.lang.http
 
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
-import io.vertx.core.file.OpenOptions
+import io.vertx.core.file.*
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.core.streams.WriteStream
@@ -30,7 +30,7 @@ public fun HttpServerRequest.withCache(cache: Cache,
     val tempFileLocation = cacheFileLocation + ".${System.currentTimeMillis()}.${Thread.currentThread().id}.tmp"
 
     cache.vertx.fileSystem().mkdirs(cache.cacheDirLocation) {
-        cache.vertx.fileSystem().open(cacheFileLocation, OpenOptions().setRead(true).setCreate(false)) { existingFile ->
+        cache.vertx.fileSystem().open(cacheFileLocation, OpenOptions().setRead(true).setCreate(false)) { existingFile: AsyncResult<AsyncFile> ->
             when (existingFile) {
                 is AsyncSuccessResult -> {
                     predicate(cacheFileLocation, { // valid
@@ -53,7 +53,7 @@ public fun HttpServerRequest.withCache(cache: Cache,
                         }
                     })
                 }
-                else -> cache.vertx.fileSystem().open(tempFileLocation, OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true)) { newFileOrFail ->
+                else -> cache.vertx.fileSystem().open(tempFileLocation, OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true)) { newFileOrFail: AsyncResult<AsyncFile> ->
                     when (newFileOrFail) {
                         is AsyncSuccessResult -> {
                             val newFile = newFileOrFail.result
