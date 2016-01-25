@@ -1,7 +1,7 @@
 # Vert.x 3 Kotlin bindings
 [ ![Download](https://api.bintray.com/packages/cy6ergn0m/maven/vertx3-lang-kotlin/images/download.svg) ](https://bintray.com/cy6ergn0m/maven/vertx3-lang-kotlin/_latestVersion)
 [![Build Status](https://travis-ci.org/cy6erGn0m/vertx3-lang-kotlin.svg?branch=master)](https://travis-ci.org/cy6erGn0m/vertx3-lang-kotlin)
-[ ![Kotlin](https://img.shields.io/badge/Kotlin-1.0.0--beta--3595-blue.svg) ](https://kotlinlang.org/)
+[ ![Kotlin](https://img.shields.io/badge/Kotlin-1.0.0--beta--4589-blue.svg) ](https://kotlinlang.org/)
 
 This module provides [Kotlin](http://kotlinlang.org) language bindings including DSL and extension functions 
 for [vert.x 3](http://vertx.io/) and provides better Kotlin programming experience
