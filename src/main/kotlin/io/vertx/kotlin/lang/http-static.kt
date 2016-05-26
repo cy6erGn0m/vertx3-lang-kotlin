@@ -66,6 +66,7 @@ private fun File.parents(): List<File> {
         }
 
         parents.add(parent)
+        current = parent
     } while (true)
 
     return parents
