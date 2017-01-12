@@ -1,3 +1,7 @@
+# Disclaimer
+
+vertx3-lang-kotlin is going to be moved into vert.x organization: https://github.com/vert-x3/vertx-lang-kotlin/
+
 # Vert.x 3 Kotlin bindings
 [ ![Download](https://api.bintray.com/packages/cy6ergn0m/maven/vertx3-lang-kotlin/images/download.svg) ](https://bintray.com/cy6ergn0m/maven/vertx3-lang-kotlin/_latestVersion)
 [![Build Status](https://travis-ci.org/cy6erGn0m/vertx3-lang-kotlin.svg?branch=master)](https://travis-ci.org/cy6erGn0m/vertx3-lang-kotlin)
